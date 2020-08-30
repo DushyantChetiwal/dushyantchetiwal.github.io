@@ -31,7 +31,7 @@
   <div id='map'></div>
   <script>
     // mapboxgl.accessToken = 'pk.your-own-code-here-for-online-maps';
-    mapboxgl.accessToken = 'NOT-REQUIRED-WITH-YOUR-VECTOR-TILES-DATA';
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZHVzaHlhbnRjaGV0aXdhbCIsImEiOiJja2UyZjhxMnMwOHFiMzFwZDJqdnMyeTVzIn0.PUt4DYXmmwcf3w5PtimzuQ';
 
     var style = {
       "version": 8,
@@ -281,7 +281,7 @@
       container: 'map',
       center: [8.3221, 46.5928],
       zoom: 1,
-      style: style
+      style: 'mapbox://styles/mapbox/streets-v11'
     });
     map.on('load', function () {
       map.loadImage(
