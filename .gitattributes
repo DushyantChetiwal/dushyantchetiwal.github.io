@@ -1,0 +1,9 @@
+# Public text stays consistent across development platforms.
+site/*.html text eol=lf
+site/*.css text eol=lf
+site/*.js text eol=lf
+site/*.txt text eol=lf
+site/*.xml text eol=lf
+*.svg text eol=lf
+*.pdf binary
+*.png binary

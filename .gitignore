@@ -1,0 +1,33 @@
+# Local Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Development-only browser tests
+node_modules/
+playwright-report/
+test-results/
+blob-report/
+
+# Local editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Private material must never enter this standalone repository.
+.env
+.env.*
+*.pem
+*.key
+job-finding-ai-*.json
+credentials*.json
+service-account*.json
+master/
+applications/
+prep/
+Job/
+
+# Generated public résumé and social-preview assets are intentionally tracked.

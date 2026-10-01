@@ -1,0 +1,13 @@
+{
+  "name": "dushyant-chetiwal-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static personal portfolio. No runtime dependencies.",
+  "scripts": {
+    "check": "python tools/check_site.py",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}
