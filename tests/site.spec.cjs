@@ -36,6 +36,22 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['laptop', 1024, 9
   });
 }
 
+test('benchmark mutation is distinct from RL Gym and describes runtime evaluation coverage', async ({ page }) => {
+  await page.goto(site);
+  const mutation = page.locator('#benchmark-mutation');
+  await expect(mutation.getByRole('heading', { level: 3 })).toHaveText('Expanding whatbenchmarks can test.');
+  await expect(mutation).toContainText('benchmark-agnostic runtime mutation framework');
+  await mutation.locator('summary').click();
+  await expect(mutation).toContainText('not only malformed inputs or integration failures');
+  await expect(mutation).toContainText('Benchmark-agnostic describes the shared core');
+  await expect(mutation).not.toContainText('RL Gym');
+  const environments = page.locator('#agent-evaluation');
+  await expect(environments).toContainText('RL Gym');
+  await expect(environments).not.toContainText('15+');
+  await expect(page.locator('body')).not.toContainText('configurable tool-call degradations');
+  await expect(page.locator('a[href*="Turing-Generalized-Agents"]')).toHaveCount(0);
+});
+
 test('keyboard navigation and copy-email fallback are usable', async ({ page }) => {
   await page.goto(site);
   await page.keyboard.press('Tab');

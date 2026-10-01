@@ -117,8 +117,8 @@ def build_resume():
     )
     # turing-benchmark-mutation
     resume.bullet(
-        "Measured tool-calling robustness with <b>15+ configurable mutations</b> "
-        "in a containerized framework that intercepts MCP traffic and simulates degraded integrations."
+        "Broadened LLM evaluation coverage with <b>15+ runtime input and interaction mutations</b> "
+        "in a <b>benchmark-agnostic framework</b> with benchmark-specific adapters."
     )
     # turing-world-state-generator
     resume.bullet(
