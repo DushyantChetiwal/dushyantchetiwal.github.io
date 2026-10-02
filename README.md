@@ -9,8 +9,9 @@ Website: **https://dushyantchetiwal.github.io/**
 
 ## Design
 
-A lightweight, responsive static site. Warm ivory, deep green, editorial typography,
-and case studies that explain the problem, contribution and measured result.
+A lightweight, responsive static site. Warm ivory, deep green, clean system
+sans-serif typography, and case studies that explain the problem, contribution
+and measured result. Headings use upright semibold text, without decorative italics.
 
 - Native, keyboard-accessible case-study disclosures.
 - Public one-page résumé with selectable text and working links.

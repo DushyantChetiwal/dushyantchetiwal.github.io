@@ -33,7 +33,7 @@
     <section class="hero wrap" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> LLM & PYTHON ENGINEER · INDIA</p>
-        <h1 id="hero-title">Reliable AI.<br><em>Measurable impact.</em></h1>
+        <h1 id="hero-title">Reliable AI.<br><span class="heading-accent">Measurable impact.</span></h1>
         <p class="hero-intro">I build the systems that make AI agents worth trusting.</p>
         <p class="hero-description">From reproducible evaluations at Turing to faster, leaner data platforms at Paytm. My work turns ambiguous failures into testable systems—and engineering effort into measurable results.</p>
         <div class="hero-actions"><a class="button primary" href="#work">Explore my work <span aria-hidden="true">↓</span></a><a class="text-link" href="assets/dushyant-chetiwal-resume.pdf" download>Download résumé <span aria-hidden="true">↗</span></a></div>
@@ -58,11 +58,11 @@
     </section>
 
     <section class="work-section wrap section" id="work" aria-labelledby="work-title">
-      <div class="section-heading"><div><p class="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">The work, <em>not just the stack.</em></h2></div><p>What I built. Why it mattered.<br>How I knew it worked.</p></div>
+      <div class="section-heading"><div><p class="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">The work, <span class="heading-accent">not just the stack.</span></h2></div><p>What I built. Why it mattered.<br>How I knew it worked.</p></div>
       <article class="case-card featured" id="benchmark-mutation">
         <div class="case-main">
           <div class="case-meta"><span class="label">BENCHMARK MUTATION FRAMEWORK</span><span>TURING / PROFESSIONAL WORK</span></div>
-          <h3>Expanding what<br><em>benchmarks can test.</em></h3>
+          <h3>Expanding what<br><span class="heading-accent">benchmarks can test.</span></h3>
           <p class="case-summary">A benchmark’s original presentation is only one evaluation condition. Runtime mutations let us examine how model behavior changes across a broader range of inputs and interactions.</p>
           <p>I architected a benchmark-agnostic runtime mutation framework with 15+ configurable transformations. A shared engine varies model inputs and interaction formats; benchmark-specific adapters connect it to existing evaluation harnesses.</p>
           <ul class="tags" aria-label="Technologies"><li>Python</li><li>Runtime mutation</li><li>Benchmark infrastructure</li><li>Docker</li></ul>
@@ -95,7 +95,7 @@
       <article class="case-card featured" id="agent-evaluation">
         <div class="case-main">
           <div class="case-meta"><span class="label">REPRODUCIBLE EVALUATION ENVIRONMENTS</span><span>TURING</span></div>
-          <h3>Reproducible environments.<br><em>Traceable evaluations.</em></h3>
+          <h3>Reproducible environments.<br><span class="heading-accent">Traceable evaluations.</span></h3>
           <p class="case-summary">Evaluation results are easier to investigate when the underlying service state is repeatable and its origin is auditable.</p>
           <p>In separate evaluation-infrastructure work, I build Dockerized pipelines and deterministic world-state generation for RL Gym: a composite environment connecting simulated services and curated tasks through the Model Context Protocol (MCP).</p>
           <ul class="tags" aria-label="Technologies"><li>Python</li><li>MCP</li><li>Docker</li><li>Typed validation</li></ul>
@@ -127,7 +127,7 @@
       <div class="case-grid">
         <article class="case-card" id="retrieval-quality">
           <div class="case-meta"><span class="label">RETRIEVAL & EVALUATION</span><span>TURING</span></div>
-          <h3>Less noise.<br><em>Better bug signals.</em></h3>
+          <h3>Less noise.<br><span class="heading-accent">Better bug signals.</span></h3>
           <p class="case-summary">A local hybrid-RAG analyzer that grounds model diagnostics in historical bugs and documentation.</p>
           <div class="inline-metric"><strong>≈32%</strong><span>relative reduction in false positives<br>versus the non-RAG baseline</span></div>
           <p>I combined SQLite FTS5 and FAISS retrieval, local BGE embeddings, fusion and reranking to bring source-linked evidence into the analysis workflow.</p>
@@ -136,7 +136,7 @@
         </article>
         <article class="case-card" id="data-platforms">
           <div class="case-meta"><span class="label">DATA PLATFORM ENGINEERING</span><span>PAYTM</span></div>
-          <h3>Smaller footprint.<br><em>Faster pipelines.</em></h3>
+          <h3>Smaller footprint.<br><span class="heading-accent">Faster pipelines.</span></h3>
           <p class="case-summary">Production data engineering where efficiency is a measurable outcome, not a diagram.</p>
           <div class="inline-metric"><strong>72%</strong><span>less Spark runtime<br>with 44% fewer resources</span></div>
           <p>I worked across Spark performance, streaming ingestion and S3 storage. The improvements below came from separate optimizations—not one combined benchmark.</p>
@@ -147,7 +147,7 @@
 
       <article class="case-card golf-card" id="parameter-golf">
         <div class="golf-art" aria-label="Training constraints: 16 MB artifact and 10 minutes on eight H100 GPUs"><p class="mini-label">CONSTRAINTS AS DESIGN INPUTS</p><div class="golf-numbers"><span>16<small>MB ARTIFACT</small></span><span>10<small>MIN · 8 × H100</small></span></div><div class="packing" aria-hidden="true"><span>−1</span><span>0</span><span>+1</span><i>→</i><span class="packed">base 3</span></div><p class="visual-caption">Training-time ternary quantization.<br>Compact weight representation.</p></div>
-        <div class="golf-copy"><div class="case-meta"><span class="label">INDEPENDENT PROJECT</span><span>PUBLIC CODE</span></div><h3>Small model.<br><em>Hard constraints.</em></h3><p>For OpenAI’s Parameter Golf challenge, I built a constrained language-model training system with 1.58-bit ternary quantization, annealed rounding, Muon optimization and base-3 weight packing.</p><p class="golf-result"><strong>1.22 bits per byte</strong> on FineWeb validation.<br><span>A non-record submission to the OpenAI Parameter Golf challenge.</span></p><a class="text-link" href="https://github.com/DushyantChetiwal/parameter-golf/tree/submission/annealed-muon-1.58bit-8kv" target="_blank" rel="noopener noreferrer">Explore the submission branch <span aria-hidden="true">↗</span></a></div>
+        <div class="golf-copy"><div class="case-meta"><span class="label">INDEPENDENT PROJECT</span><span>PUBLIC CODE</span></div><h3>Small model.<br><span class="heading-accent">Hard constraints.</span></h3><p>For OpenAI’s Parameter Golf challenge, I built a constrained language-model training system with 1.58-bit ternary quantization, annealed rounding, Muon optimization and base-3 weight packing.</p><p class="golf-result"><strong>1.22 bits per byte</strong> on FineWeb validation.<br><span>A non-record submission to the OpenAI Parameter Golf challenge.</span></p><a class="text-link" href="https://github.com/DushyantChetiwal/parameter-golf/tree/submission/annealed-muon-1.58bit-8kv" target="_blank" rel="noopener noreferrer">Explore the submission branch <span aria-hidden="true">↗</span></a></div>
       </article>
 
       <article class="praxis-card" id="praxis">
@@ -158,16 +158,16 @@
     </section>
 
     <section class="approach-section section" id="approach" aria-labelledby="approach-title"><div class="wrap">
-      <div class="section-heading"><div><p class="eyebrow">02 / HOW I WORK</p><h2 id="approach-title">Make it repeatable.<br><em>Then make it better.</em></h2></div><p>The same engineering discipline connects<br>agent evaluations and data infrastructure.</p></div>
+      <div class="section-heading"><div><p class="eyebrow">02 / HOW I WORK</p><h2 id="approach-title">Make it repeatable.<br><span class="heading-accent">Then make it better.</span></h2></div><p>The same engineering discipline connects<br>agent evaluations and data infrastructure.</p></div>
       <div class="principles"><article><span class="principle-index">01</span><h3>Start with a baseline.</h3><p>A result needs a comparison. Define what success means, then measure on the same inputs before claiming an improvement.</p></article><article><span class="principle-index">02</span><h3>Make behavior inspectable.</h3><p>Deterministic state, typed validation and controlled input variation make model behavior easier to examine and compare.</p></article><article><span class="principle-index">03</span><h3>Optimize the whole system.</h3><p>Runtime, resource use, storage cost and model quality are connected. Improvements should survive the real constraints.</p></article></div>
     </div></section>
 
     <section class="about-section wrap section" id="about" aria-labelledby="about-title">
-      <div class="about-copy"><p class="eyebrow">03 / THE PERSON BEHIND THE WORK</p><h2 id="about-title">An engineer<br><em>across the layers.</em></h2><p>I’m Dushyant, a Python-first engineer based in India. My path runs from backend services to distributed data platforms to the infrastructure around tool-using AI agents.</p><p>Today, I’m an <strong>LLM Python Engineer & Team Lead at Turing</strong>. I’m interested in teams building agents, evaluations, AI developer tools and the platforms behind them.</p><div class="education"><span class="mini-label">EDUCATION</span><strong>Indian Institute of Technology Goa</strong><span>B.Tech, Computer Science · 2017–2021</span></div><a class="text-link" href="assets/dushyant-chetiwal-resume.pdf" download>Get the full résumé <span aria-hidden="true">↗</span></a></div>
+      <div class="about-copy"><p class="eyebrow">03 / THE PERSON BEHIND THE WORK</p><h2 id="about-title">An engineer<br><span class="heading-accent">across the layers.</span></h2><p>I’m Dushyant, a Python-first engineer based in India. My path runs from backend services to distributed data platforms to the infrastructure around tool-using AI agents.</p><p>Today, I’m an <strong>LLM Python Engineer & Team Lead at Turing</strong>. I’m interested in teams building agents, evaluations, AI developer tools and the platforms behind them.</p><div class="education"><span class="mini-label">EDUCATION</span><strong>Indian Institute of Technology Goa</strong><span>B.Tech, Computer Science · 2017–2021</span></div><a class="text-link" href="assets/dushyant-chetiwal-resume.pdf" download>Get the full résumé <span aria-hidden="true">↗</span></a></div>
       <div class="experience"><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">SEP 2024 — PRESENT</p><h3>Turing</h3><p class="experience-title">LLM Python Engineer & Team Lead</p><p>Benchmark mutation, reproducible environments and evaluation infrastructure for AI agents.</p></article><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">MAR 2022 — SEP 2024</p><h3>Paytm</h3><p class="experience-title">Senior Data Engineer</p><p>Distributed data pipelines, Spark performance and infrastructure efficiency.</p><div class="awards"><span>↗ Rising Star · 2022</span><span>↗ Technology Star · 2023</span></div></article><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">JUL 2021 — MAR 2022</p><h3>Clarivate Analytics</h3><p class="experience-title">Associate Software Engineer</p><p>Java backend services and customer-facing JavaScript interfaces and APIs.</p></article></div>
     </section>
 
-    <section class="contact-section wrap" id="contact" aria-labelledby="contact-title"><div class="contact-box"><div><p class="eyebrow">HAVE A RELIABILITY PROBLEM WORTH SOLVING?</p><h2 id="contact-title">Let’s build something<br><em>you can trust.</em></h2><p>I’m interested in full-time opportunities in agent engineering, evaluations and Python platforms. Based in India; remote-first, with India-compatible working hours.</p><a class="button light" href="mailto:dushyantchetiwal24@gmail.com">Get in touch <span aria-hidden="true">↗</span></a></div><div class="contact-links"><a href="mailto:dushyantchetiwal24@gmail.com">dushyantchetiwal24@gmail.com <span aria-hidden="true">↗</span></a><button class="copy-email" type="button" hidden>Copy email address <span aria-hidden="true">⧉</span></button><span class="copy-status" role="status" aria-live="polite"></span><a href="https://www.linkedin.com/in/dushyantchetiwal/" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a><a href="https://github.com/DushyantChetiwal" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href="assets/dushyant-chetiwal-resume.pdf" download>Résumé PDF <span aria-hidden="true">↓</span></a></div></div></section>
+    <section class="contact-section wrap" id="contact" aria-labelledby="contact-title"><div class="contact-box"><div><p class="eyebrow">HAVE A RELIABILITY PROBLEM WORTH SOLVING?</p><h2 id="contact-title">Let’s build something<br><span class="heading-accent">you can trust.</span></h2><p>I’m interested in full-time opportunities in agent engineering, evaluations and Python platforms. Based in India; remote-first, with India-compatible working hours.</p><a class="button light" href="mailto:dushyantchetiwal24@gmail.com">Get in touch <span aria-hidden="true">↗</span></a></div><div class="contact-links"><a href="mailto:dushyantchetiwal24@gmail.com">dushyantchetiwal24@gmail.com <span aria-hidden="true">↗</span></a><button class="copy-email" type="button" hidden>Copy email address <span aria-hidden="true">⧉</span></button><span class="copy-status" role="status" aria-live="polite"></span><a href="https://www.linkedin.com/in/dushyantchetiwal/" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a><a href="https://github.com/DushyantChetiwal" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href="assets/dushyant-chetiwal-resume.pdf" download>Résumé PDF <span aria-hidden="true">↓</span></a></div></div></section>
   </main>
   <footer class="footer wrap"><a href="#" class="footer-name">Dushyant Chetiwal<span>.</span></a><p>Built with intention. No trackers. No noise.</p><a href="#main">Back to top <span aria-hidden="true">↑</span></a></footer>
 </body>

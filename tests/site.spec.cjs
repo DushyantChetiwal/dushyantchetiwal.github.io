@@ -15,6 +15,15 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['laptop', 1024, 9
     await page.goto(site);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Reliable AI.Measurable impact.');
     await expect(page.locator('.hero-intro')).toBeVisible();
+    const typography = await page.evaluate(() => {
+      const bodyFont = getComputedStyle(document.body).fontFamily;
+      return [...document.querySelectorAll('h1, h2, h3, .heading-accent, .monogram, .proof-number, .eyebrow')].map((element) => {
+        const style = getComputedStyle(element);
+        return { sameFont: style.fontFamily === bodyFont, style: style.fontStyle };
+      });
+    });
+    expect(typography.every((item) => item.sameFont && item.style === 'normal')).toBe(true);
+    await expect(page.locator('h1 em, h2 em, h3 em')).toHaveCount(0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);
     await page.screenshot({ path: testInfo.outputPath(`${name}-hero.png`) });
