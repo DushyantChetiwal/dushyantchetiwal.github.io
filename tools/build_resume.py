@@ -29,9 +29,9 @@ PARAMETER_GOLF = (
     "https://github.com/DushyantChetiwal/parameter-golf/tree/"
     "submission/annealed-muon-1.58bit-8kv"
 )
-GREEN = "#1e3832"
-INK = "#222b28"
-MUTED = "#4c5954"
+ACCENT = "#111111"
+INK = "#292929"
+MUTED = "#565656"
 PAGE_WIDTH, PAGE_HEIGHT = A4
 MARGIN = 40
 WIDTH = PAGE_WIDTH - 2 * MARGIN
@@ -70,12 +70,12 @@ class Resume:
 
     def section(self, title):
         self.y -= 10
-        self.paragraph(title.upper(), size=10, leading=13, color=GREEN,
+        self.paragraph(title.upper(), size=10, leading=13, color=ACCENT,
                        bold=True, after=5)
 
     def role(self, employer, title, dates):
         self.paragraph(escape(employer), size=11.5, leading=15,
-                       color=GREEN, bold=True)
+                       color=ACCENT, bold=True)
         self.canvas.setFillColor(HexColor(MUTED))
         self.canvas.setFont("Helvetica", 9.5)
         self.canvas.drawRightString(PAGE_WIDTH - MARGIN, self.y + 3, dates)
@@ -91,15 +91,15 @@ class Resume:
 
 
 def link(url, label):
-    return f'<link href="{escape(url, {chr(34): "&quot;"})}" color="{GREEN}">{escape(label)}</link>'
+    return f'<link href="{escape(url, {chr(34): "&quot;"})}" color="{ACCENT}">{escape(label)}</link>'
 
 
 def build_resume():
     resume = Resume()
     resume.paragraph("Dushyant Chetiwal", size=24, leading=29,
-                     color=GREEN, bold=True, after=2)
+                     color=ACCENT, bold=True, after=2)
     resume.paragraph("LLM &amp; Python Engineer", size=13, leading=17,
-                     color=GREEN, after=6)
+                     color=ACCENT, after=6)
     resume.paragraph(link(f"mailto:{EMAIL}", EMAIL), size=10, leading=14)
     resume.paragraph(
         link(GITHUB, "GitHub: DushyantChetiwal") + " &nbsp; | &nbsp; "

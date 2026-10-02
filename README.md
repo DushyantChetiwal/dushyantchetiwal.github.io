@@ -9,7 +9,7 @@ Website: **https://dushyantchetiwal.github.io/**
 
 ## Design
 
-A lightweight, responsive static site. Warm ivory, deep green, clean system
+A lightweight, responsive static site. Black accents, neutral grays, clean system
 sans-serif typography, and case studies that explain the problem, contribution
 and measured result. Headings use upright semibold text, without decorative italics.
 
