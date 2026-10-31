@@ -96,6 +96,51 @@ test('enterprise environments describe functionality without naming services or 
   await expect(page.locator('#work .case-card').first()).toHaveAttribute('id', 'enterprise-environments');
 });
 
+test('the 3D hero replaces the CSS loop, keeps playing on hover and jumps between stages', async ({ page }) => {
+  test.setTimeout(60000);
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(site);
+  const hero = page.locator('.gym-art');
+  await expect(hero).toHaveAttribute('data-ready', 'true');
+  await expect(page.locator('.loop-art')).toBeHidden();
+  await expect(hero.locator('canvas')).toBeVisible();
+  const stages = ['Task', 'Attempt', 'Eval', 'Correct', 'Harder task'];
+  for (const name of stages) {
+    await hero.getByRole('button', { name, exact: true }).click();
+    await expect(hero.locator('.gym-chips li.is-active')).toHaveText(name);
+  }
+  // Jump to the start and keep the pointer over it: the story must carry on regardless.
+  await hero.getByRole('button', { name: 'Task', exact: true }).click();
+  await expect(hero.locator('.gym-caption')).toHaveText('A new task drops in.');
+  await hero.locator('canvas').hover();
+  await expect(hero.locator('.gym-caption')).not.toHaveText('A new task drops in.', { timeout: 25000 });
+  expect(errors).toEqual([]);
+});
+
+test('without JavaScript the CSS reliability loop animates four linked steps and holds still for reduced motion', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto(site);
+  await expect(page.locator('.gym-art')).toHaveCount(0);
+  const loop = page.locator('.loop-art');
+  const steps = loop.locator('.loop-step a');
+  await expect(steps).toHaveCount(4);
+  await expect(steps.nth(0)).toHaveAttribute('href', '#agent-evaluation');
+  await expect(steps.nth(1)).toHaveAttribute('href', '#enterprise-environments');
+  await expect(steps.nth(2)).toHaveAttribute('href', '#retrieval-quality');
+  await expect(steps.nth(3)).toHaveAttribute('href', '#benchmark-mutation');
+  expect(await loop.evaluate((element) => element.getAnimations({ subtree: true }).length)).toBeGreaterThanOrEqual(5);
+  for (const step of await steps.all()) {
+    const box = await step.boundingBox();
+    const frame = await loop.boundingBox();
+    expect(box.x >= frame.x && box.x + box.width <= frame.x + frame.width).toBe(true);
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect(await loop.evaluate((element) => element.getAnimations({ subtree: true }).length)).toBe(0);
+  await context.close();
+});
+
 test('visuals carry no placeholder or self-undermining captions', async ({ page }) => {
   await page.goto(site);
   for (const details of await page.locator('details').all()) await details.locator('summary').click();

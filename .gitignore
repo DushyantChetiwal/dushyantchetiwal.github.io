@@ -4,6 +4,9 @@ __pycache__/
 .venv/
 venv/
 
+# Local animation drafts and preview tooling
+drafts/
+
 # Development-only browser tests
 node_modules/
 playwright-report/

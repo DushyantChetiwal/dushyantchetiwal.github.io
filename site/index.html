@@ -16,6 +16,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
+  <script src="assets/bean-hero.js" defer></script>
   <title>Dushyant Chetiwal — LLM & Python Engineer</title>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Person","name":"Dushyant Chetiwal","url":"https://dushyantchetiwal.github.io/","jobTitle":"LLM Python Engineer & Team Lead","worksFor":{"@type":"Organization","name":"Turing"},"alumniOf":{"@type":"CollegeOrUniversity","name":"Indian Institute of Technology Goa"},"sameAs":["https://github.com/DushyantChetiwal","https://www.linkedin.com/in/dushyantchetiwal/"]}
@@ -39,15 +40,19 @@
         <div class="hero-actions"><a class="button primary" href="#work">Explore my work <span aria-hidden="true">↓</span></a><a class="text-link" href="assets/dushyant-chetiwal-resume.pdf" download>Download résumé <span aria-hidden="true">↗</span></a></div>
         <p class="hero-footnote">Python first. Evidence over assumptions.</p>
       </div>
-      <div class="system-art" aria-label="Diagram of a reproducible agent evaluation loop">
-        <div class="art-top"><span class="mini-label">A RELIABILITY LOOP</span><span class="art-mark" aria-hidden="true">↗</span></div>
-        <div class="art-grid" aria-hidden="true"></div>
-        <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
-        <div class="art-node node-state"><span class="node-icon" aria-hidden="true">⌘</span><span><strong>Reproducible state</strong><small>Same inputs. Traceable runs.</small></span></div>
-        <div class="art-connector" aria-hidden="true"></div>
-        <div class="art-node node-agent"><span class="node-icon dark" aria-hidden="true">λ</span><span><strong>Agent + tools</strong><small>Vary evaluation conditions.</small></span><span class="node-pulse" aria-hidden="true"></span></div>
-        <div class="art-node node-evidence"><span class="node-icon" aria-hidden="true">✓</span><span><strong>Evaluation evidence</strong><small>Measure. Diagnose. Improve.</small></span></div>
-        <div class="art-bottom"><span class="tiny-dot" aria-hidden="true"></span> STATE · AGENT · EVIDENCE <span>01 — 03</span></div>
+      <div class="loop-art" role="group" aria-labelledby="loop-title">
+        <div class="loop-head"><span class="mini-label" id="loop-title">THE RELIABILITY LOOP</span><span class="loop-turn" aria-hidden="true">↻</span></div>
+        <div class="loop-stage">
+          <svg class="loop-ring" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><circle cx="50" cy="50" r="50"/><path transform="rotate(0 50 50)" d="M48.4 -1.6 L50.4 0 L48.4 1.6"/><path transform="rotate(90 50 50)" d="M48.4 -1.6 L50.4 0 L48.4 1.6"/><path transform="rotate(180 50 50)" d="M48.4 -1.6 L50.4 0 L48.4 1.6"/><path transform="rotate(270 50 50)" d="M48.4 -1.6 L50.4 0 L48.4 1.6"/></svg>
+          <div class="loop-orbit" aria-hidden="true"></div>
+          <p class="loop-core"><strong>Every failure</strong>becomes the next test.</p>
+          <ol class="loop-steps">
+            <li class="loop-step step-1"><a href="#agent-evaluation"><span class="step-n">01</span><strong>Build the world</strong><small>Seeded, replayable state</small></a></li>
+            <li class="loop-step step-2"><a href="#enterprise-environments"><span class="step-n">02</span><strong>Run the agent</strong><small>Tools over MCP, every call logged</small></a></li>
+            <li class="loop-step step-3"><a href="#retrieval-quality"><span class="step-n">03</span><strong>Grade the result</strong><small>Measured against a baseline</small></a></li>
+            <li class="loop-step step-4"><a href="#benchmark-mutation"><span class="step-n">04</span><strong>Find the weak spot</strong><small>Vary inputs, inject faults</small></a></li>
+          </ol>
+        </div>
       </div>
     </section>
 

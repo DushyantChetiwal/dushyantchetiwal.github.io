@@ -23,7 +23,11 @@ ALLOWED = {
     "index.html", "styles.css", "script.js", ".nojekyll", "robots.txt",
     "sitemap.xml", "assets/favicon.svg", "assets/social-preview.png",
     "assets/dushyant-chetiwal-resume.pdf",
+    # The 3D hero: src/hero/bean.js bundled with three.js by tools/build_hero.py.
+    "assets/bean-hero.js",
 }
+# XML namespace identifiers are names, not requests (three.js creates its canvas with one).
+NAMESPACE_URI = re.compile(r"[\"']http://www\.w3\.org/(?:1999/xhtml|2000/svg)[\"']")
 EXTENSIONS = {".html", ".css", ".js", ".txt", ".xml", ".svg", ".png", ".pdf"}
 PRIVATE = re.compile(
     r"-----BEGIN (?:[A-Z ]*PRIVATE KEY|OPENSSH PRIVATE KEY)-----"
@@ -42,7 +46,7 @@ ADDRESS = re.compile(
 )
 NETWORK_JS = re.compile(
     r"\b(?:fetch|XMLHttpRequest|WebSocket|EventSource|importScripts)\s*\("
-    r"|\bsendBeacon\s*\(|\bimport\s*(?:\(|[\w*{])"
+    r"|\bsendBeacon\s*\(|\bimport\s*[({*]|\bimport\s+[\w$]"
     r"|https?://|(?<!:)//[\w.-]+/",
     re.I,
 )
@@ -75,6 +79,7 @@ class Checks:
 
     def script(self, path, text):
         text = re.sub(r"/\*.*?\*/|(?m:^\s*//[^\n]*)", "", text, flags=re.S)
+        text = NAMESPACE_URI.sub("''", text)
         if NETWORK_JS.search(text):
             self.fail(path, "network/import code is not allowed in local JavaScript")
 
