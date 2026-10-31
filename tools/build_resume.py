@@ -109,22 +109,24 @@ def build_resume():
 
     resume.section("Experience")
     resume.role("Turing", "LLM Python Engineer & Team Lead", "Sep 2024 – Present")
-    # turing-qc-framework + turing-evals-pipeline; no unconfirmed numeric scale.
+    # turing-ekw-platform; team size is approximate, no individual services named.
     resume.bullet(
-        "Enabled reproducible LLM evaluation by leading a cross-functional team on "
-        "RL Gym quality control and building a Dockerized Python evaluation pipeline. "
-        "RL Gym combines simulated services and curated tasks through Model Context Protocol (MCP)."
+        "Gave task teams ready-made environments for graded agent evaluation by "
+        "<b>leading about 10 engineers</b> building simulated business applications that "
+        "AI agents operate over MCP, with seedable state, user permissions, fault injection "
+        "and per-call audit logs, plus a CLI that verifies and packages each task."
     )
     # turing-benchmark-mutation
     resume.bullet(
         "Broadened LLM evaluation coverage with <b>15+ runtime input and interaction mutations</b> "
         "in a <b>benchmark-agnostic framework</b> with benchmark-specific adapters."
     )
-    # turing-world-state-generator
+    # turing-qc-framework + turing-evals-pipeline + turing-world-state-generator.
     resume.bullet(
-        "Made multi-service evaluation environments reproducible and auditable with a "
-        "<b>deterministic world-state generator</b>, using declarative specifications, "
-        "typed validation and full data lineage."
+        "Made RL Gym evaluations reproducible and auditable by leading its cross-functional "
+        "quality control and building a Dockerized pipeline and a <b>deterministic world-state "
+        "generator</b> with typed validation and full data lineage. RL Gym combines simulated "
+        "services and curated tasks through Model Context Protocol (MCP)."
     )
     # turing-ai-bug-analyzer; relative, approximate, same ground-truth set.
     resume.bullet(

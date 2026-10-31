@@ -71,7 +71,7 @@ test('benchmark mutation is distinct from RL Gym and describes runtime evaluatio
   await expect(mutation).toContainText('benchmark-agnostic runtime mutation framework');
   await mutation.locator('summary').click();
   await expect(mutation).toContainText('not only malformed inputs or integration failures');
-  await expect(mutation).toContainText('Benchmark-agnostic describes the shared core');
+  await expect(mutation).toContainText('one shared mutation core, connected to each harness through a small adapter');
   await expect(mutation).not.toContainText('RL Gym');
   const environments = page.locator('#agent-evaluation');
   await expect(environments).toContainText('RL Gym');
@@ -94,6 +94,15 @@ test('enterprise environments describe functionality without naming services or 
   }
   await expect(page.locator('a[href*="Turing-EKW"]')).toHaveCount(0);
   await expect(page.locator('#work .case-card').first()).toHaveAttribute('id', 'enterprise-environments');
+});
+
+test('visuals carry no placeholder or self-undermining captions', async ({ page }) => {
+  await page.goto(site);
+  for (const details of await page.locator('details').all()) await details.locator('summary').click();
+  const text = (await page.locator('body').innerText()).toLowerCase();
+  for (const phrase of ['conceptual', 'not a live', 'not a claim', 'are claimed here']) {
+    expect(text, phrase).not.toContain(phrase);
+  }
 });
 
 test('keyboard navigation and copy-email fallback are usable', async ({ page }) => {
