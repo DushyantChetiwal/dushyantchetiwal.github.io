@@ -80,6 +80,22 @@ test('benchmark mutation is distinct from RL Gym and describes runtime evaluatio
   await expect(page.locator('a[href*="Turing-Generalized-Agents"]')).toHaveCount(0);
 });
 
+test('enterprise environments describe functionality without naming services or private details', async ({ page }) => {
+  await page.goto(site);
+  const card = page.locator('#enterprise-environments');
+  await expect(card.getByRole('heading', { level: 3 })).toHaveText('Simulated companies.Real agent work.');
+  await expect(card).toContainText('about 10 engineers');
+  await card.locator('summary').click();
+  await expect(card).toContainText('Separate teams create the evaluation tasks');
+  await expect(card).toContainText('audit journals');
+  const text = (await card.innerText()).toLowerCase();
+  for (const word of ['gmail', 'slack', 'calendar', 'email', 'erp', 'ofbiz', 'harbor', 'dataos', 'alibaba', 'turing-ekw', 'worldgen', 'claude']) {
+    expect(text, word).not.toMatch(new RegExp(`\\b${word}\\b`));
+  }
+  await expect(page.locator('a[href*="Turing-EKW"]')).toHaveCount(0);
+  await expect(page.locator('#work .case-card').first()).toHaveAttribute('id', 'enterprise-environments');
+});
+
 test('keyboard navigation and copy-email fallback are usable', async ({ page }) => {
   await page.goto(site);
   await page.keyboard.press('Tab');

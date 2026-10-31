@@ -59,6 +59,40 @@
 
     <section class="work-section wrap section" id="work" aria-labelledby="work-title">
       <div class="section-heading"><div><p class="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">The work, <span class="heading-accent">not just the stack.</span></h2></div><p>What I built. Why it mattered.<br>How I knew it worked.</p></div>
+      <article class="case-card featured" id="enterprise-environments">
+        <div class="case-main">
+          <div class="case-meta"><span class="label">ENTERPRISE AGENT ENVIRONMENTS</span><span>TURING / TEAM LEAD</span></div>
+          <h3>Simulated companies.<br><span class="heading-accent">Real agent work.</span></h3>
+          <p class="case-summary">Agents doing office work need more than a prompt. They need realistic business systems with history, permissions and consequences, and a reliable way to check that the work was actually done.</p>
+          <p>I lead a team of about 10 engineers building an enterprise knowledge-work platform: simulated business applications that AI agents operate through the Model Context Protocol (MCP), generated company histories to run them on, and the tooling other teams use to turn a scenario into a graded, verified task.</p>
+          <ul class="tags" aria-label="Technologies"><li>Python</li><li>MCP</li><li>Agent environments</li><li>Docker</li><li>Team leadership</li></ul>
+          <details class="case-details">
+            <summary>Inside the platform <span aria-hidden="true">+</span></summary>
+            <div class="detail-content">
+              <h4>The challenge</h4>
+              <p>Evaluate agents on realistic, multi-step business work, where the outcome depends on shared state, on who is acting and on what changed, and make every task reproducible enough to grade.</p>
+              <h4>My contribution</h4>
+              <ul>
+                <li>Lead the platform team and set its technical direction, including the generation of replayable company histories that can be cut at any date, so one world serves many tasks. Separate teams create the evaluation tasks; we build the environments and tooling they depend on.</li>
+                <li>Work hands-on on the connectors that serve simulated applications to agents: seedable world state, actions taken as a specific user with role-based permissions, reproducible identifiers and a shared simulated clock.</li>
+                <li>Added controlled fault injection and audit journals that record every tool call, the acting user and any injected fault, so each run can be inspected afterwards.</li>
+                <li>Built the task-authoring tooling: a command-line tool with guided AI-assistant workflows that takes an author from scenario to packaged task, proves the grader against a reference solution and a do-nothing baseline, runs model trials and produces self-contained bundles that build without network access.</li>
+                <li>Shipped the connectors and authoring tools as immutable, versioned releases, with each task pinned to the versions it was proved with.</li>
+              </ul>
+              <h4>What the contribution is</h4>
+              <p>A shared platform that lets task teams produce graded agent tasks without building their own environments. Team size is approximate, and no task-volume or model-quality metrics are claimed here.</p>
+              <p class="disclosure">Employer work is described at a high level. Internal source code, client details and implementation specifics are not published here.</p>
+            </div>
+          </details>
+        </div>
+        <div class="case-visual eval-visual">
+          <span class="mini-label">FROM SCENARIO TO GRADED TASK</span>
+          <div class="eval-metric"><strong>≈10</strong><p>engineers on the<br>platform team</p></div>
+          <div class="eval-path"><div><span>01</span> Generate a company history</div><i aria-hidden="true">↓</i><div><span>02</span> Serve it to agents over MCP</div><i aria-hidden="true">↓</i><div><span>03</span> Author, prove and package tasks</div></div>
+          <p class="visual-caption">A conceptual workflow,<br>not a live production trace.</p>
+        </div>
+      </article>
+
       <article class="case-card featured" id="benchmark-mutation">
         <div class="case-main">
           <div class="case-meta"><span class="label">BENCHMARK MUTATION FRAMEWORK</span><span>TURING / PROFESSIONAL WORK</span></div>
@@ -164,7 +198,7 @@
 
     <section class="about-section wrap section" id="about" aria-labelledby="about-title">
       <div class="about-copy"><p class="eyebrow">03 / THE PERSON BEHIND THE WORK</p><h2 id="about-title">An engineer<br><span class="heading-accent">across the layers.</span></h2><p>I’m Dushyant, a Python-first engineer based in India. My path runs from backend services to distributed data platforms to the infrastructure around tool-using AI agents.</p><p>Today, I’m an <strong>LLM Python Engineer & Team Lead at Turing</strong>. I’m interested in teams building agents, evaluations, AI developer tools and the platforms behind them.</p><div class="education"><span class="mini-label">EDUCATION</span><strong>Indian Institute of Technology Goa</strong><span>B.Tech, Computer Science · 2017–2021</span></div><a class="text-link" href="assets/dushyant-chetiwal-resume.pdf" download>Get the full résumé <span aria-hidden="true">↗</span></a></div>
-      <div class="experience"><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">SEP 2024 — PRESENT</p><h3>Turing</h3><p class="experience-title">LLM Python Engineer & Team Lead</p><p>Benchmark mutation, reproducible environments and evaluation infrastructure for AI agents.</p></article><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">MAR 2022 — SEP 2024</p><h3>Paytm</h3><p class="experience-title">Senior Data Engineer</p><p>Distributed data pipelines, Spark performance and infrastructure efficiency.</p><div class="awards"><span>↗ Rising Star · 2022</span><span>↗ Technology Star · 2023</span></div></article><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">JUL 2021 — MAR 2022</p><h3>Clarivate Analytics</h3><p class="experience-title">Associate Software Engineer</p><p>Java backend services and customer-facing JavaScript interfaces and APIs.</p></article></div>
+      <div class="experience"><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">SEP 2024 — PRESENT</p><h3>Turing</h3><p class="experience-title">LLM Python Engineer & Team Lead</p><p>Leading an enterprise agent-environment platform team, plus benchmark mutation and evaluation infrastructure for AI agents.</p></article><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">MAR 2022 — SEP 2024</p><h3>Paytm</h3><p class="experience-title">Senior Data Engineer</p><p>Distributed data pipelines, Spark performance and infrastructure efficiency.</p><div class="awards"><span>↗ Rising Star · 2022</span><span>↗ Technology Star · 2023</span></div></article><article><span class="timeline-dot" aria-hidden="true"></span><p class="experience-date">JUL 2021 — MAR 2022</p><h3>Clarivate Analytics</h3><p class="experience-title">Associate Software Engineer</p><p>Java backend services and customer-facing JavaScript interfaces and APIs.</p></article></div>
     </section>
 
     <section class="contact-section wrap" id="contact" aria-labelledby="contact-title"><div class="contact-box"><div><p class="eyebrow">HAVE A RELIABILITY PROBLEM WORTH SOLVING?</p><h2 id="contact-title">Let’s build something<br><span class="heading-accent">you can trust.</span></h2><p>I’m interested in full-time opportunities in agent engineering, evaluations and Python platforms. Based in India; remote-first, with India-compatible working hours.</p><a class="button light" href="mailto:dushyantchetiwal24@gmail.com">Get in touch <span aria-hidden="true">↗</span></a></div><div class="contact-links"><a href="mailto:dushyantchetiwal24@gmail.com">dushyantchetiwal24@gmail.com <span aria-hidden="true">↗</span></a><button class="copy-email" type="button" hidden>Copy email address <span aria-hidden="true">⧉</span></button><span class="copy-status" role="status" aria-live="polite"></span><a href="https://www.linkedin.com/in/dushyantchetiwal/" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a><a href="https://github.com/DushyantChetiwal" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><a href="assets/dushyant-chetiwal-resume.pdf" download>Résumé PDF <span aria-hidden="true">↓</span></a></div></div></section>
