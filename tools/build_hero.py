@@ -1,8 +1,9 @@
 """Bundle the 3D hero (src/hero/bean.js + three.js) into one local script.
 
 Run from portfolio/: python -B tools/build_hero.py
-Writes site/assets/bean-hero.js. The page loads it with `defer`; without JavaScript
-or WebGL the CSS reliability loop in index.html stays in place.
+Writes site/assets/bean-hero.js. script.js loads it once the page has loaded and the
+hero is near the viewport; without JavaScript or WebGL the CSS reliability loop in
+index.html stays in place.
 """
 
 from pathlib import Path

@@ -22,7 +22,7 @@
 @media print{body{background:white;font-size:11px}.header,.hero-actions,.hero-footnote,.loop-art,.gym-art,.case-visual,.golf-art,.copy-email,.copy-status,.footer,.contact-links,.nav-contact,.skip-link{display:none!important}.wrap{width:100%}.hero,.featured,.golf-card,.about-section,.contact-box{display:block;padding:10px 0}.hero h1{font-size:36px}.section{padding-top:25px}.case-grid{display:block}.case-card{padding:15px;margin:15px 0;break-inside:avoid}.case-card h3,.featured h3{font-size:24px}.case-details:not([open])>.detail-content{display:block}.case-details summary{display:none}.proof-strip{padding-block:15px}.proof-number{font-size:25px}.approach-section{margin-top:20px;background:none}.contact-box{background:none;color:var(--ink)}.contact-box .heading-accent{color:var(--accent)}.contact-box .eyebrow,.contact-box p:not(.eyebrow){color:var(--muted)}.contact-box h2{font-size:30px}.experience{margin-top:20px}.section-heading h2{font-size:30px}a[href^='https:']::after{content:' (' attr(href) ')';font-size:8px;overflow-wrap:anywhere}.tags{margin-block:12px}}
 /* The 3D hero (src/hero/bean.js) replaces .loop-art once WebGL starts. */
 .gym-art{position:relative;display:flex;flex-direction:column;height:452px;border-radius:120px 18px 18px 18px;border:1px solid #d8d8d8;background:#ebebeb;padding:30px 24px 20px;overflow:hidden;box-shadow:inset 0 0 70px #ffffff55}
-.gym-stage{position:relative;flex:1;min-height:0;margin-top:4px}
+.gym-stage{position:relative;flex:1;min-height:0;margin:4px -24px 0}
 .gym-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .gym-caption{margin:4px 0 12px;min-height:20px;text-align:center;font-size:12.5px;font-weight:550;letter-spacing:-.005em;color:#111111}
 .gym-chips{list-style:none;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0;padding:0}
@@ -30,8 +30,13 @@
 .gym-chips button:hover{border-color:#111111;color:#111111}
 .gym-chips button:focus-visible{outline:2px solid #6b6b6b;outline-offset:2px}
 .gym-chips li.is-active button{background:#111111;color:#f7f7f7;border-color:#111111}
+.gym-pause{display:grid;place-items:center;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid #d2d2d2;background:#f3f3f3;color:#111111;cursor:pointer;transition:border-color .2s}
+.gym-pause:hover{border-color:#111111}
+.gym-pause:focus-visible{outline:2px solid #6b6b6b;outline-offset:2px}
+.gym-pause span{display:block;box-sizing:border-box;width:10px;height:11px;border-left:3px solid currentColor;border-right:3px solid currentColor}
+.gym-art[data-paused=true] .gym-pause span{width:0;height:0;margin-left:3px;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor}
 @media(min-width:1500px){.gym-art{height:480px}}
-@media(max-width:1100px){.gym-art{height:430px;padding:26px 18px 18px}}
+@media(max-width:1100px){.gym-art{height:430px;padding:26px 18px 18px}.gym-stage{margin-inline:-18px}}
 @media(max-width:800px){.gym-art{width:100%;max-width:580px;justify-self:center;height:430px;border-top-left-radius:75px}}
-@media(max-width:580px){.gym-art{height:400px;border-top-left-radius:64px;padding:22px 14px 16px}.gym-caption{font-size:11.5px}.gym-chips button{font-size:8px;padding:5px 8px}}
+@media(max-width:580px){.gym-art{height:400px;border-top-left-radius:64px;padding:22px 14px 16px}.gym-stage{margin-inline:-14px}.gym-caption{font-size:11.5px}.gym-chips button{font-size:8px;padding:5px 8px}}
 @media(max-width:360px){.gym-art{height:370px}}

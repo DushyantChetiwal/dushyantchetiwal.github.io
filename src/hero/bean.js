@@ -1,15 +1,15 @@
-// "Bean and the shape sorter" hero animation. Built to site/assets/bean-hero.js by
-// tools/build_hero.py. It replaces the CSS reliability loop only once WebGL starts,
-// so the CSS loop remains the fallback without JavaScript or WebGL.
+// "Bean and the colour sorter" hero animation. Built to site/assets/bean-hero.js by
+// tools/build_hero.py and loaded on demand by script.js. It replaces the CSS reliability
+// loop only once WebGL starts, so the CSS loop remains the fallback.
 // Every frame is a pure function of time t, so the loop can be seeked for previews,
 // paused, and rendered as a still for reduced motion. Secondary motion is derived
 // from precomputed tables rather than simulated per frame.
 import {
   ACESFilmicToneMapping, BufferAttribute, CanvasTexture, CapsuleGeometry, CatmullRomCurve3, CircleGeometry, Color,
-  ConeGeometry, CylinderGeometry, DirectionalLight, ExtrudeGeometry, Group, HemisphereLight, Matrix4, Mesh,
-  MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, PCFSoftShadowMap, PerspectiveCamera,
-  PlaneGeometry, PMREMGenerator, Quaternion, QuadraticBezierCurve3, Scene, Shape, ShapeGeometry, SphereGeometry,
-  TorusGeometry, TubeGeometry, Vector3, WebGLRenderer,
+  CylinderGeometry, DirectionalLight, DoubleSide, ExtrudeGeometry, Group, HemisphereLight, Matrix4, Mesh,
+  MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, PCFShadowMap, PerspectiveCamera,
+  PlaneGeometry, PMREMGenerator, Quaternion, QuadraticBezierCurve3, Raycaster, Scene, ShadowMaterial, Shape,
+  ShapeGeometry, SphereGeometry, SRGBColorSpace, TorusGeometry, TubeGeometry, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -42,36 +42,43 @@ const forwardOf = (h) => v(Math.sin(h), 0, Math.cos(h));
 // ---------------------------------------------------------------- the stage and the story
 export const LOOP = 33;
 const MACHINE_SCALE = 0.86;
-const MACHINES = { pyramid: { x: -1.3, z: -1.4, ry: 0.26 }, cube: { x: 1.3, z: -1.4, ry: -0.26 } };
+// Two colour-sorting machines. The first task is a blue cube, tried in the green machine.
+const MACHINES = { green: { x: -1.3, z: -1.4, ry: 0.26 }, blue: { x: 1.3, z: -1.4, ry: -0.26 } };
+// Soft, slightly muted accents: the only colour on an otherwise monochrome page.
+const HUES = {
+  blue: { body: 0x3a6fd0, light: 0x7aa5f2 },
+  green: { body: 0x2f9a63, light: 0x6fd39d },
+};
+const FAIL = 0xe0544a;
 for (const m of Object.values(MACHINES)) {
   m.front = forwardOf(m.ry);
   m.spot = v(m.x, 0, m.z).addScaledVector(m.front, 0.9);
   m.face = Math.atan2(-m.front.x, -m.front.z);
 }
 const CENTER = v(0, 0, 0.1);
-const CUBE_SIZE = 0.34; const PYR_H = 0.42;
+const CUBE_SIZE = 0.34;
 const DROP1 = v(0.22, 0, 0.9);
-const DROP_P = v(-0.36, 0, 0.9);
-const DROP_C = v(0.4, 0, 0.9);
+const DROP_G = v(-0.36, 0, 0.9);
+const DROP_B = v(0.4, 0, 0.9);
 const approach = (spot) => spot.clone().add(v(0, 0, -0.78));
-const A1 = approach(DROP1); const AP = approach(DROP_P); const AC = approach(DROP_C);
-const SP = MACHINES.pyramid.spot; const SC = MACHINES.cube.spot;
-const HP = MACHINES.pyramid.face; const HC = MACHINES.cube.face;
-const BACKED = SP.clone().addScaledVector(MACHINES.pyramid.front, 0.32);
+const A1 = approach(DROP1); const AG = approach(DROP_G); const AB = approach(DROP_B);
+const SG = MACHINES.green.spot; const SB = MACHINES.blue.spot;
+const HG = MACHINES.green.face; const HB = MACHINES.blue.face;
+const BACKED = SG.clone().addScaledVector(MACHINES.green.front, 0.32);
 
 // Where Bean stands and faces, keyed in time. Each segment eases in and out.
 const BASE_KEYS = [
   [0, CENTER, 0], [3.5, CENTER, 0], [4.3, A1, 0],
-  [6.1, A1, 0], [6.5, A1, headingTo(A1, SP)], [7.8, SP, headingTo(A1, SP)], [8.2, SP, HP],
+  [6.1, A1, 0], [6.5, A1, headingTo(A1, SG)], [7.8, SG, headingTo(A1, SG)], [8.2, SG, HG],
   // Bonked: a startled hop back that spins round to face the camera, then it gathers itself.
-  [10.66, SP, HP], [10.98, BACKED, 0.35],
-  [12.5, BACKED, 0.35], [12.8, BACKED, headingTo(BACKED, SC)], [13.95, SC, headingTo(BACKED, SC)], [14.3, SC, HC],
-  [16.3, SC, HC], [16.6, SC, headingTo(SC, CENTER)], [17.2, CENTER, headingTo(SC, CENTER)], [17.5, CENTER, 0],
-  [19.2, CENTER, 0], [19.35, CENTER, headingTo(CENTER, AP)], [19.65, AP, headingTo(CENTER, AP)], [19.78, AP, 0],
-  [20.85, AP, 0], [21.1, AP, headingTo(AP, SP)], [22.05, SP, headingTo(AP, SP)], [22.35, SP, HP],
-  [23.6, SP, HP], [23.85, SP, headingTo(SP, AC)], [25.1, AC, headingTo(SP, AC)], [25.42, AC, 0],
-  [26.5, AC, 0], [26.75, AC, headingTo(AC, SC)], [27.65, SC, headingTo(AC, SC)], [27.95, SC, HC],
-  [29.2, SC, HC], [29.45, SC, headingTo(SC, CENTER)], [30.2, CENTER, headingTo(SC, CENTER)], [30.45, CENTER, 0],
+  [10.66, SG, HG], [10.98, BACKED, 0.35],
+  [12.5, BACKED, 0.35], [12.8, BACKED, headingTo(BACKED, SB)], [13.95, SB, headingTo(BACKED, SB)], [14.3, SB, HB],
+  [16.3, SB, HB], [16.6, SB, headingTo(SB, CENTER)], [17.2, CENTER, headingTo(SB, CENTER)], [17.5, CENTER, 0],
+  [19.2, CENTER, 0], [19.35, CENTER, headingTo(CENTER, AG)], [19.65, AG, headingTo(CENTER, AG)], [19.78, AG, 0],
+  [20.85, AG, 0], [21.1, AG, headingTo(AG, SG)], [22.05, SG, headingTo(AG, SG)], [22.35, SG, HG],
+  [23.6, SG, HG], [23.85, SG, headingTo(SG, AB)], [25.1, AB, headingTo(SG, AB)], [25.42, AB, 0],
+  [26.5, AB, 0], [26.75, AB, headingTo(AB, SB)], [27.65, SB, headingTo(AB, SB)], [27.95, SB, HB],
+  [29.2, SB, HB], [29.45, SB, headingTo(SB, CENTER)], [30.2, CENTER, headingTo(SB, CENTER)], [30.45, CENTER, 0],
   [LOOP, CENTER, 0],
 ];
 const WALK_STARTS = [3.5, 6.5, 12.8, 16.6, 19.35, 21.1, 23.85, 26.75, 29.45];
@@ -83,12 +90,12 @@ const pickupTimes = ({ t, d }) => ({
   start: t, nudge: t + 0.25 * d, tiltEnd: t + 0.5 * d, crouch: t + 0.45 * d, flick: t + 0.7 * d,
   land: t + 1.1 * d, end: t + 1.3 * d,
 });
-const INSERTS = [{ t: 8.3, m: 'pyramid' }, { t: 14.4, m: 'cube' }, { t: 22.4, m: 'pyramid' }, { t: 28.0, m: 'cube' }];
+const INSERTS = [{ t: 8.3, m: 'green' }, { t: 14.4, m: 'blue' }, { t: 22.4, m: 'green' }, { t: 28.0, m: 'blue' }];
 const insertTimes = (t) => ({ start: t, toss: t + 0.25, fly: t + 0.3, gulp: t + 0.65, end: t + 0.8 });
 const SPIT = { start: 10.15, land: 10.6 };
 const VERDICTS = {
-  pyramid: [{ busy: [9.05, 9.8], verdict: 'error', at: 9.8, until: 11.6 }, { busy: [23.05, 23.5], verdict: 'ok', at: 23.5, until: 32.3 }],
-  cube: [{ busy: [15.05, 15.6], verdict: 'ok', at: 15.6, until: 17.4 }, { busy: [28.65, 29.1], verdict: 'ok', at: 29.1, until: 32.3 }],
+  green: [{ busy: [9.05, 9.8], verdict: 'error', at: 9.8, until: 11.6 }, { busy: [23.05, 23.5], verdict: 'ok', at: 23.5, until: 32.3 }],
+  blue: [{ busy: [15.05, 15.6], verdict: 'ok', at: 15.6, until: 17.4 }, { busy: [28.65, 29.1], verdict: 'ok', at: 29.1, until: 32.3 }],
 };
 const JUMP = { crouch: 30.5, take: 30.85, land: 31.55, settle: 31.85 };
 // The hand: [time, position, open (0 holding, 1 open)]. It places one shape at a time,
@@ -102,7 +109,7 @@ const HAND = [
   [19.68, v(0.4, 1.12, 0.9), 1], [19.86, v(0.4, 1.2, 0.9), 1], [20.55, v(0.4, 4.7, 0.9), 1], [20.6, v(0.4, 4.7, 0.9), 0],
   [LOOP, v(0.4, 4.7, 0.9), 0],
 ];
-const RELEASE1 = 1.47; const RELEASE_P = 17.95; const RELEASE_C = 19.62;
+const RELEASE1 = 1.47; const RELEASE_G = 17.95; const RELEASE_B = 19.62;
 // Where each stage label jumps to.
 const CHIP_TIMES = [0, 3.3, 8.95, 12.45, 17.0];
 const CAPTIONS = [
@@ -110,8 +117,8 @@ const CAPTIONS = [
   [8.95, 1, 'The agent works out what to do with it…'],
   [12.4, 2, 'Eval: wrong machine. Rejected.'],
   [17.0, 3, 'Feedback in. It corrects course: accepted.'],
-  [20.3, 4, 'A harder task: two shapes at once.'],
-  [29.1, 1, 'Pyramid first, then the cube…'],
+  [20.3, 4, 'A harder task: two cubes at once.'],
+  [29.1, 1, 'Green first, then blue…'],
   [LOOP, 2, 'Both accepted, first try.'],
 ];
 
@@ -191,7 +198,7 @@ function face(t) {
   // Blinks: a slow periodic one, plus deliberate blinks on beats (after noticing, deciding, recovering).
   const blinkAt = (t0) => (t > t0 && t < t0 + 0.16 ? Math.abs((t - t0) / 0.08 - 1) : 1);
   const periodic = blinkAt(t - ((t + 0.7) % 3.4));
-  const beats = Math.min(...[3.6, 8.25, 12.45, 17.35, 25.45].map(blinkAt));
+  const beats = Math.min(...[3.6, 8.25, 12.45, 12.68, 17.35, 25.45, 25.66].map(blinkAt));
   f.blink = f.scared < 0.2 && f.happy < 0.5 ? Math.min(periodic, beats) : 1;
   return f;
 }
@@ -238,7 +245,7 @@ const SOFT = physical(0xd8d8d8, 0.45);
 const INK = physical(0x171717, 0.35, { clearcoat: 0.6 });
 // Screens are emissive panels: they stay black from every angle; the bezel carries the form.
 const SCREEN = new MeshBasicMaterial({ color: 0x0b0b0b, toneMapped: false });
-const SHAPE = new MeshStandardMaterial({ color: 0x232323, roughness: 0.74, metalness: 0, envMapIntensity: 0.55 });
+const shapeMaterial = (hue) => new MeshStandardMaterial({ color: HUES[hue].body, roughness: 0.74, metalness: 0, envMapIntensity: 0.55 });
 const LEG = physical(0xffffff, 0.36, { vertexColors: true, sheen: 0.4, sheenRoughness: 0.6, sheenColor: new Color(0xffffff) });
 const SKIN = new MeshStandardMaterial({ color: 0xdedede, roughness: 0.6, envMapIntensity: 0.7 });
 const glow = (color = 0xffffff, opacity = 1) => new MeshBasicMaterial({ color, toneMapped: false, transparent: opacity < 1, opacity });
@@ -272,17 +279,19 @@ function taperedTube(points, radiusAt, colorAt = () => 0xffffff, tubular = 40, r
   geometry.computeVertexNormals();
   return geometry;
 }
-function iconShape(kind, size, material = glow()) {
-  const shape = new Shape();
-  if (kind === 'pyramid') { shape.moveTo(0, size * 0.6); shape.lineTo(size * 0.55, -size * 0.38); shape.lineTo(-size * 0.55, -size * 0.38); shape.closePath(); }
-  else { const s = size * 0.46; shape.moveTo(-s, -s); shape.lineTo(s, -s); shape.lineTo(s, s); shape.lineTo(-s, s); shape.closePath(); }
-  return new Mesh(new ShapeGeometry(shape), material);
+// A rounded square: the machine's "I take this colour of cube" sign.
+function iconShape(size, material) {
+  const s = size * 0.46; const r = size * 0.12; const shape = new Shape();
+  shape.moveTo(-s + r, -s); shape.lineTo(s - r, -s); shape.quadraticCurveTo(s, -s, s, -s + r);
+  shape.lineTo(s, s - r); shape.quadraticCurveTo(s, s, s - r, s); shape.lineTo(-s + r, s);
+  shape.quadraticCurveTo(-s, s, -s, s - r); shape.lineTo(-s, -s + r); shape.quadraticCurveTo(-s, -s, -s + r, -s);
+  return new Mesh(new ShapeGeometry(shape, 6), material);
 }
-function strokes(list, width = 0.05) {
+function strokes(list, width = 0.05, material = glow()) {
   const group = new Group();
   for (const [ax, ay, bx, by] of list) {
     const length = Math.hypot(bx - ax, by - ay);
-    const stroke = new Mesh(new RoundedBoxGeometry(length + width, width, 0.01, 2, width * 0.45), glow());
+    const stroke = new Mesh(new RoundedBoxGeometry(length + width, width, 0.01, 2, width * 0.45), material);
     stroke.position.set((ax + bx) / 2, (ay + by) / 2, 0); stroke.rotation.z = Math.atan2(by - ay, bx - ax);
     group.add(stroke);
   }
@@ -438,8 +447,32 @@ function solveKnee(hip, foot, out) {
 }
 const restFoot = (leg, pose) => leg.rest.clone().applyAxisAngle(UP, pose.h).add(v(pose.x, 0, pose.z));
 
-function poseBean(bean, t) {
+// Where Bean's eyes are drawn to: the hand and the cube it carries, or the camera at the
+// big moments. Returns the target and how strongly it overrides the keyed glances.
+const CAMERA_EYE = v(0, 2.45, 7.2);
+function gazeAt(t) {
+  const carried = (id) => {
+    const plan = shapePlan(id);
+    const held = keyed(HAND, Math.min(t, plan.release))[1].clone().add(plan.handOffset);
+    const fall = seg(t, plan.release, plan.release + fallTime(plan));
+    return held.lerp(plan.drop.clone().setY(plan.size), in2(fall));
+  };
+  const windows = [
+    [0.3, 2.05, () => carried('cube1')], [17.25, 18.75, () => carried('green')], [18.95, 20.3, () => carried('cube2')],
+    [11.05, 11.85, () => CAMERA_EYE], [JUMP.crouch - 0.1, LOOP - 0.35, () => CAMERA_EYE],
+  ];
+  let best = { weight: 0, target: null };
+  for (const [a, b, at] of windows) {
+    const weight = win(t, a, b, 0.2, 0.25);
+    if (weight > best.weight) best = { weight, target: at() };
+  }
+  return best;
+}
+
+const NO_EXTRA = { lift: 0, squash: 1, roll: 0, happy: 0 };
+function poseBean(bean, t, extra = NO_EXTRA) {
   const c = channels(t);
+  c.lift += extra.lift; c.squash *= extra.squash; c.roll += extra.roll;
   const g = sample(TABLE.g, t); const w = sample(TABLE.w, t);
   const pose = { x: sample(TABLE.x, t), z: sample(TABLE.z, t), h: sampleAngle(t) };
   const gait = g / STEP;
@@ -479,6 +512,14 @@ function poseBean(bean, t) {
   }
 
   const f = face(t);
+  f.happy = Math.max(f.happy, extra.happy);
+  const gaze = gazeAt(t);
+  if (gaze.weight > 0) {
+    const local = bean.rig.worldToLocal(gaze.target.clone()).sub(v(0, GOGGLE.y, BODY[2]));
+    const gx = clamp(Math.atan2(local.x, Math.max(0.05, local.z)) / 0.8, -1, 1);
+    const gy = clamp(Math.atan2(local.y, Math.hypot(local.x, local.z)) / 0.6, -1, 1);
+    f.lookX = lerp(f.lookX, gx, gaze.weight); f.lookY = lerp(f.lookY, gy, gaze.weight);
+  }
   const base = [0.05, 0.06];
   for (const e of bean.eyes) {
     const curiousScale = e.side < 0 ? 1.3 : 0.78;
@@ -486,7 +527,7 @@ function poseBean(bean, t) {
     const sx = base[0] * grow * lerp(1, curiousScale, f.curious);
     const open = Math.max(0.04, f.blink * (1 - f.happy) * (1 - 0.42 * f.focus));
     const sy = base[1] * grow * lerp(1, curiousScale, f.curious) * open;
-    const px = e.side * 0.15 + f.lookX * 0.04; const py = 0.01 + f.lookY * 0.032 - 0.012 * f.focus;
+    const px = e.side * 0.15 + f.lookX * 0.055; const py = 0.01 + f.lookY * 0.04 - 0.012 * f.focus;
     const k = bean.flat ? 0.72 : 1;
     e.eye.scale.set(sx * k, sy * k, 1); bean.place(e.eye, px, py, 0.004); e.eye.visible = open > 0.05;
     const pupil = 0.02 * f.scared * k;
@@ -504,43 +545,66 @@ function buildMachine(scene, kind) {
   const group = new Group(); const body = new Group(); group.add(body);
   const cabinet = new Mesh(new RoundedBoxGeometry(1.0, 1.85, 0.8, 5, 0.18), SHELL); cabinet.position.y = 0.925; cabinet.receiveShadow = true;
   const display = panel(0.64, 0.48, 0.04, 0.11, SCREEN); display.position.set(0, 1.45, 0.41);
-  const icon = iconShape(kind, 0.3); icon.position.set(0, 1.45, 0.432);
-  const tick = strokes([[-0.11, 0.02, -0.03, -0.06], [-0.03, -0.06, 0.12, 0.11]]);
-  const cross = strokes([[-0.1, -0.1, 0.1, 0.1], [-0.1, 0.1, 0.1, -0.1]]);
+  const hue = HUES[kind];
+  const icon = iconShape(0.3, glow(hue.light)); icon.position.set(0, 1.45, 0.432);
+  const tick = strokes([[-0.11, 0.02, -0.03, -0.06], [-0.03, -0.06, 0.12, 0.11]], 0.05, glow(hue.light));
+  const cross = strokes([[-0.1, -0.1, 0.1, 0.1], [-0.1, 0.1, 0.1, -0.1]], 0.05, glow(FAIL));
   for (const mark of [tick, cross]) { mark.position.set(0, 1.45, 0.432); }
   const mouth = panel(0.5, 0.3, 0.04, 0.09, SCREEN); mouth.position.set(0, 0.88, 0.41);
-  const hint = iconShape(kind, 0.14, glow(0x5a5a5a)); hint.position.set(0, 0.88, 0.432);
+  const hint = iconShape(0.12, glow(hue.body)); hint.position.set(0, 0.88, 0.432);
   const lip = new Mesh(new RoundedBoxGeometry(0.56, 0.05, 0.16, 2, 0.02), SOFT); lip.position.set(0, 0.72, 0.46); lip.rotation.x = 0.25;
   const stalk = new Mesh(new CylinderGeometry(0.02, 0.02, 0.18, 10), INK); stalk.position.y = 1.94;
   const lamp = new Mesh(new SphereGeometry(0.075, 20, 14), SOFT); lamp.position.y = 2.06;
-  const lampGlow = new Mesh(new SphereGeometry(0.075, 20, 14), glow(0xffffff, 1)); lampGlow.position.y = 2.06;
+  const lampOk = new Mesh(new SphereGeometry(0.075, 20, 14), glow(hue.light)); lampOk.position.y = 2.06;
+  const lampFail = new Mesh(new SphereGeometry(0.075, 20, 14), glow(FAIL)); lampFail.position.y = 2.06;
+  // A soft halo behind the lamp when it lights up.
+  const halo = new Mesh(new CircleGeometry(0.2, 32), new MeshBasicMaterial({ color: hue.light, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }));
+  halo.position.set(0, 2.06, -0.02);
   const feet = [-0.38, 0.38].map((fx) => { const foot = new Mesh(new RoundedBoxGeometry(0.22, 0.06, 0.7, 2, 0.02), INK); foot.position.set(fx, 0.03, 0); return foot; });
-  body.add(cabinet, display, icon, tick, cross, mouth, hint, lip, stalk, lamp, lampGlow);
+  body.add(cabinet, display, icon, tick, cross, mouth, hint, lip, stalk, lamp, lampOk, lampFail, halo);
   group.add(...feet);
-  shadowed(group);
+  shadowed(group); halo.castShadow = false;
   group.position.set(m.x, 0, m.z); group.rotation.y = m.ry; group.scale.setScalar(MACHINE_SCALE);
   scene.add(group);
-  return { kind, group, body, icon, tick, cross, lamp, lampGlow, mouth: () => group.localToWorld(v(0, 0.88, 0.46)) };
+  return {
+    kind, group, body, icon, hint, tick, cross, lampOk, lampFail, halo,
+    mouth: () => group.localToWorld(v(0, 0.88, 0.46)),
+    // A point inside the slot: a swallowed cube slides here, behind the black mouth panel.
+    inside: () => group.localToWorld(v(0, 0.86, 0.12)),
+  };
 }
 function poseMachine(machine, t) {
   const schedule = VERDICTS[machine.kind];
-  let icon = 1; let tick = 0; let cross = 0; let lamp = 0; let shake = 0; let gulp = 0;
+  let icon = 1; let tick = 0; let cross = 0; let ok = 0; let fail = 0; let shake = 0; let gulp = 0; let hop = 0;
   for (const s of schedule) {
     if (t >= s.busy[0] && t < s.at) icon = 0.75 + 0.25 * Math.round((Math.sin((t - s.busy[0]) * 22) + 1) / 2);
     if (t >= s.at && t < s.until) {
       icon = 0; const pop = back(seg(t, s.at, s.at + 0.3)) * (1 - smooth(seg(t, s.until - 0.3, s.until)));
-      if (s.verdict === 'ok') { tick = pop; lamp = pop * (0.75 + 0.25 * Math.sin(t * 6)); } else { cross = pop; }
+      if (s.verdict === 'ok') {
+        tick = pop;
+        // A bright flash that settles into a steady glow.
+        ok = pop * (0.7 + 0.3 * Math.exp(-3 * (t - s.at)));
+      } else {
+        cross = pop;
+        // The fail lamp blinks hard three times, then stays dimly lit.
+        const since = t - s.at;
+        fail = pop * (since < 0.9 ? (Math.sin(since * TAU * 3.3) > -0.2 ? 1 : 0.15) : 0.55);
+      }
     }
     if (t >= s.until - 0.3 && t < s.until) icon = Math.max(icon, smooth(seg(t, s.until - 0.3, s.until)));
-    if (s.verdict === 'error') shake += 0.06 * ring(t, s.at, 42, 7, 0.6);
+    if (s.verdict === 'error') shake += 0.075 * ring(t, s.at, 42, 6, 0.8);
+    else hop += 0.05 * bump(t, s.at, s.at + 0.28);
     gulp += bump(t, s.busy[0] - 0.02, s.busy[0] + 0.28);
   }
   machine.icon.scale.setScalar(Math.max(1e-3, icon)); machine.icon.visible = icon > 0.01;
   machine.tick.scale.setScalar(Math.max(1e-3, tick)); machine.tick.visible = tick > 0.01;
   machine.cross.scale.setScalar(Math.max(1e-3, cross)); machine.cross.visible = cross > 0.01;
-  machine.lampGlow.visible = lamp > 0.01; machine.lampGlow.scale.setScalar(1 + 0.25 * lamp);
-  machine.lamp.material = cross > 0.01 ? INK : SOFT;
+  machine.lampOk.visible = ok > 0.02; machine.lampOk.scale.setScalar(1 + 0.2 * ok);
+  machine.lampFail.visible = !machine.lampOk.visible && fail > 0.02; machine.lampFail.scale.setScalar(1 + 0.2 * fail);
+  machine.halo.material.color.set(fail > ok ? FAIL : HUES[machine.kind].light);
+  machine.halo.material.opacity = 0.35 * Math.max(ok, fail); machine.halo.visible = Math.max(ok, fail) > 0.02;
   machine.body.rotation.z = shake;
+  machine.body.position.y = hop;
   machine.body.scale.set(1 + 0.04 * gulp, 1 - 0.05 * gulp, 1 + 0.04 * gulp);
 }
 
@@ -567,11 +631,7 @@ function poseHand(hand, t) {
   hand.group.visible = p.y < 4.6;
   return p;
 }
-function cube() { const mesh = new Mesh(new RoundedBoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 4, 0.05), SHAPE); mesh.castShadow = true; return mesh; }
-function pyramid() {
-  const geometry = new ConeGeometry(0.27, PYR_H, 4, 1); geometry.rotateY(Math.PI / 4);
-  const mesh = new Mesh(geometry, SHAPE); mesh.castShadow = true; return mesh;
-}
+function cube(hue) { const mesh = new Mesh(new RoundedBoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 4, 0.05), shapeMaterial(hue)); mesh.castShadow = true; return mesh; }
 function mark(kind) {
   const group = new Group(); const material = INK;
   if (kind === '?') {
@@ -583,12 +643,99 @@ function mark(kind) {
   return group;
 }
 
+// ---------------------------------------------------------------- floor, contact shadows, score board
+// A soft radial falloff (white centre, black edge) used as an alpha mask.
+let radialMask = null;
+function radial() {
+  if (radialMask) return radialMask;
+  const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  for (let i = 0; i <= 8; i += 1) { const u = i / 8; const a = Math.round(255 * (1 - smooth(u))); gradient.addColorStop(u, `rgb(${a},${a},${a})`); }
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
+  radialMask = new CanvasTexture(canvas);
+  return radialMask;
+}
+function floorPatch(color, opacity, order) {
+  const geometry = new PlaneGeometry(1, 1); geometry.rotateX(-Math.PI / 2);
+  const mesh = new Mesh(geometry, new MeshBasicMaterial({ color, alphaMap: radial(), transparent: true, opacity, depthWrite: false, toneMapped: false }));
+  mesh.renderOrder = order;
+  return mesh;
+}
+// Contact shadow: a dark blur right under an object, fading as it leaves the floor.
+function blob(scene, w, d) {
+  const mesh = floorPatch(0x000000, 0, 2); mesh.scale.set(w, 1, d); mesh.position.y = 0.004; scene.add(mesh);
+  return mesh;
+}
+
+// Each verdict as the eval log records it.
+const LOG = [
+  { row: 0, t: 9.8, ok: false, hue: 'blue' }, { row: 0, t: 15.6, ok: true, hue: 'blue' },
+  { row: 1, t: 23.5, ok: true, hue: 'green' }, { row: 1, t: 29.1, ok: true, hue: 'blue' },
+];
+const TASK2 = 17.0;
+function boardState(t) {
+  const task = t < TASK2 ? 0 : 1;
+  const marks = LOG.filter((m) => t >= m.t).map((m) => ({ ...m, pop: Math.round(20 * clamp01(back(seg(t, m.t, m.t + 0.35)))) / 20 }));
+  const current = marks.filter((m) => m.row === task);
+  const passed = current.filter((m) => m.ok).length;
+  const footer = task === 1 && passed === 2 ? 'PASS@1  2/2' : current.length ? `PASSED ${passed}/${current.length}` : 'RUNNING…';
+  return { task, marks, footer, done: footer.startsWith('PASS') };
+}
+function buildBoard(scene) {
+  const W = 1.36; const H = 0.68; const Y = 1.42;
+  const group = new Group(); group.position.set(0, 0, -2.1);
+  const frame = new Mesh(new RoundedBoxGeometry(W + 0.09, H + 0.09, 0.08, 4, 0.05), SHELL); frame.position.y = Y;
+  const posts = [-0.45, 0.45].map((x) => { const post = new Mesh(new CylinderGeometry(0.022, 0.022, Y - H / 2, 10), INK); post.position.set(x, (Y - H / 2) / 2, -0.01); return post; });
+  const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = Math.round((1024 * H) / W);
+  const texture = new CanvasTexture(canvas); texture.colorSpace = SRGBColorSpace; texture.anisotropy = 4;
+  const screen = new Mesh(new PlaneGeometry(W, H), new MeshBasicMaterial({ map: texture, transparent: true, toneMapped: false }));
+  screen.position.set(0, Y, 0.042);
+  group.add(frame, screen, ...posts); shadowed(group); screen.castShadow = false;
+  scene.add(group);
+  const css = (hex) => `#${hex.toString(16).padStart(6, '0')}`;
+  let drawn = '';
+  return (t) => {
+    const state = boardState(t);
+    const key = JSON.stringify(state);
+    if (key === drawn) return;
+    drawn = key;
+    const ctx = canvas.getContext('2d'); const cw = canvas.width; const ch = canvas.height;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.fillStyle = '#0b0b0b'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(0, 0, cw, ch, 44); else ctx.rect(0, 0, cw, ch); ctx.fill();
+    ctx.textBaseline = 'middle';
+    const font = (weight, size) => `${weight} ${size}px system-ui, "Segoe UI", Arial, sans-serif`;
+    const rows = [100, 225];
+    for (const row of [0, 1]) {
+      if (row > state.task) continue;
+      ctx.fillStyle = row === state.task ? '#f2f2f2' : '#8a8a8a';
+      ctx.font = font(650, 84); ctx.fillText(`TASK ${row + 1}`, 60, rows[row]);
+    }
+    state.marks.forEach((m) => {
+      const index = state.marks.filter((other) => other.row === m.row).indexOf(m);
+      const x = 560 + index * 150; const y = rows[m.row]; const r = 56 * m.pop;
+      if (r < 1) return;
+      const color = m.ok ? css(HUES[m.hue].light) : css(FAIL);
+      ctx.fillStyle = '#1d1d1d'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 14 * m.pop; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
+      if (m.ok) { ctx.moveTo(x - 0.45 * r, y + 0.02 * r); ctx.lineTo(x - 0.12 * r, y + 0.34 * r); ctx.lineTo(x + 0.5 * r, y - 0.36 * r); }
+      else { ctx.moveTo(x - 0.36 * r, y - 0.36 * r); ctx.lineTo(x + 0.36 * r, y + 0.36 * r); ctx.moveTo(x + 0.36 * r, y - 0.36 * r); ctx.lineTo(x - 0.36 * r, y + 0.36 * r); }
+      ctx.stroke();
+    });
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(60, 312, cw - 120, 4);
+    ctx.fillStyle = state.done ? '#ffffff' : '#bdbdbd';
+    ctx.font = font(state.done ? 750 : 650, 92);
+    ctx.fillText(state.footer, 60, 408);
+    texture.needsUpdate = true;
+  };
+}
+
 // ---------------------------------------------------------------- the shapes' journeys
 // Each shape's state at time t: where it is, how it's rotated, how big it is.
 function shapePlan(id) {
   if (id === 'cube1') return { size: CUBE_SIZE / 2, drop: DROP1, release: RELEASE1, holdFrom: 0, handOffset: v(0, -0.47, 0), yaw: 0.35, pickup: PICKUPS[0], inserts: [INSERTS[0], INSERTS[1]], spit: true };
-  if (id === 'pyramid') return { size: PYR_H / 2, drop: DROP_P, release: RELEASE_P, holdFrom: 17.0, handOffset: v(0, -0.5, 0), yaw: 0.2, pickup: PICKUPS[1], inserts: [INSERTS[2]] };
-  return { size: CUBE_SIZE / 2, drop: DROP_C, release: RELEASE_C, holdFrom: 18.86, handOffset: v(0, -0.47, 0), yaw: -0.3, pickup: PICKUPS[2], inserts: [INSERTS[3]] };
+  if (id === 'green') return { size: CUBE_SIZE / 2, drop: DROP_G, release: RELEASE_G, holdFrom: 17.0, handOffset: v(0, -0.47, 0), yaw: 0.2, pickup: PICKUPS[1], inserts: [INSERTS[2]] };
+  return { size: CUBE_SIZE / 2, drop: DROP_B, release: RELEASE_B, holdFrom: 18.86, handOffset: v(0, -0.47, 0), yaw: -0.3, pickup: PICKUPS[2], inserts: [INSERTS[3]] };
 }
 // A released shape falls freely from where the hand let go.
 function fallTime(plan) {
@@ -598,14 +745,15 @@ function fallTime(plan) {
 // Shapes lying on the floor at time t, as circles Bean's feet must stay out of.
 function groundShapes(t) {
   const list = [];
-  for (const id of ['cube1', 'pyramid', 'cube2']) {
+  for (const id of ['cube1', 'green', 'cube2']) {
     const plan = shapePlan(id);
     const landed = plan.release + fallTime(plan);
-    if (t > landed - 0.12 && t < pickupTimes(plan.pickup).nudge + 0.05) list.push({ x: plan.drop.x, z: plan.drop.z, r: id === 'pyramid' ? 0.28 : 0.26 });
+    if (t > landed - 0.12 && t < pickupTimes(plan.pickup).nudge + 0.05) list.push({ x: plan.drop.x, z: plan.drop.z, r: 0.26 });
   }
   return list;
 }
 const yawQ = (a) => new Quaternion().setFromAxisAngle(UP, a);
+const SWALLOW = 0.26;
 function poseShape(plan, t, ctx) {
   const { bean, hand, machines } = ctx;
   const half = plan.size;
@@ -659,17 +807,24 @@ function poseShape(plan, t, ctx) {
     const u = io(seg(t, kk.fly, kk.gulp));
     return { p: bezier(from, to, 0.55, u), q: rigQ().multiply(new Quaternion().setFromAxisAngle(v(1, 0, 0), 0.8 * u)), s: 1 - 0.3 * u };
   };
+  // After the toss the cube slides on into the slot, out of sight behind the black mouth.
+  const swallow = (insert, kk) => {
+    const u = in2(seg(t, kk.gulp, kk.gulp + SWALLOW));
+    return { p: mouthOf(insert).lerp(machines[insert.m].inside(), u), q: rigQ().multiply(new Quaternion().setFromAxisAngle(v(1, 0, 0), 0.8)), s: 0.7 };
+  };
   if (t < firstK.gulp) return toss(first, firstK);
+  if (t < firstK.gulp + SWALLOW) return swallow(first, firstK);
   if (plan.spit) {
     if (t < SPIT.start) return hidden;
     if (t < SPIT.land) {
       const u = seg(t, SPIT.start, SPIT.land);
-      const p = bezier(machines.pyramid.mouth(), headTop(bean, half), 0.7, io(u));
+      const p = bezier(machines.green.mouth(), headTop(bean, half), 0.7, io(u));
       const tumble = new Quaternion().setFromAxisAngle(v(1, 0, 0.3).normalize(), TAU * u).multiply(rigQ());
       return { p, q: tumble.slerp(onHead().q, smooth(seg(u, 0.75, 1))), s: 0.7 + 0.3 * out3(u) };
     }
     if (t < lastK.fly) return onHead();
     if (t < lastK.gulp) return toss(last, lastK);
+    if (t < lastK.gulp + SWALLOW) return swallow(last, lastK);
   }
   return hidden;
 }
@@ -683,7 +838,7 @@ export function mountSorter(root) {
   try { renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch { root.classList.add('gym-static'); return null; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setClearColor(0x000000, 0);
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = PCFSoftShadowMap;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = PCFShadowMap;
   renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
 
   const scene = new Scene();
@@ -693,28 +848,40 @@ export function mountSorter(root) {
   const key = new DirectionalLight(0xffffff, 2.1); key.position.set(-3, 7, 5); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
   Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 22 });
-  key.shadow.bias = -0.0005; key.shadow.normalBias = 0.02;
+  key.shadow.bias = -0.0005; key.shadow.normalBias = 0.02; key.shadow.radius = 5;
   const fill = new DirectionalLight(0xffffff, 0.45); fill.position.set(5, 3, 6);
   const rim = new DirectionalLight(0xffffff, 1.6); rim.position.set(2.5, 4, -6);
   scene.add(key, fill, rim);
-  const floor = new Mesh(new CylinderGeometry(3.3, 3.3, 0.14, 96), new MeshStandardMaterial({ color: 0xf6f6f6, roughness: 0.85 }));
-  floor.scale.set(1.2, 1, 0.82); floor.position.set(0, -0.07, -0.45); floor.receiveShadow = true;
-  scene.add(floor);
+  // No visible floor edge: a soft pool of light that fades into the panel, plus a
+  // transparent plane that only shows the shadows falling on it.
+  const pool = floorPatch(0xffffff, 0.75, 0); pool.scale.set(7, 1, 5.2); pool.position.set(0, 0, -0.5); scene.add(pool);
+  const catcher = new Mesh(new PlaneGeometry(16, 12).rotateX(-Math.PI / 2), new ShadowMaterial({ opacity: 0.2, depthWrite: false }));
+  catcher.receiveShadow = true; catcher.renderOrder = 1; catcher.position.set(0, 0.002, -1); scene.add(catcher);
 
   const bean = buildBean(scene);
-  const machines = { pyramid: buildMachine(scene, 'pyramid'), cube: buildMachine(scene, 'cube') };
+  const machines = { green: buildMachine(scene, 'green'), blue: buildMachine(scene, 'blue') };
+  const drawBoard = buildBoard(scene);
+  const beanBlob = blob(scene, 1.25, 0.95);
+  for (const machine of Object.values(machines)) {
+    const under = blob(scene, 1.35, 1.1); under.material.opacity = 0.3;
+    under.position.set(machine.group.position.x, 0.004, machine.group.position.z); under.rotation.y = machine.group.rotation.y;
+  }
   const hand = buildHand(scene);
-  const shapes = [['cube1', cube()], ['pyramid', pyramid()], ['cube2', cube()]].map(([id, mesh]) => { scene.add(mesh); return { plan: shapePlan(id), mesh }; });
+  const shapes = [['cube1', cube('blue')], ['green', cube('green')], ['cube2', cube('blue')]].map(([id, mesh]) => { scene.add(mesh); return { plan: shapePlan(id), mesh }; });
   const question = mark('?'); const exclaim = mark('!'); scene.add(question, exclaim);
   const shocks = Array.from({ length: 5 }, () => { const s = new Mesh(new CapsuleGeometry(0.016, 0.12, 4, 8), INK); scene.add(s); return s; });
   scene.updateMatrixWorld(true);
-  const confetti = Array.from({ length: 36 }, (_, i) => {
-    const piece = new Mesh(new RoundedBoxGeometry(0.07, 0.07, 0.014, 1, 0.01), new MeshStandardMaterial({ color: [0x111111, 0x6a6a6a, 0xb5b5b5][i % 3], roughness: 0.7 }));
+  const shapeBlobs = shapes.map(() => blob(scene, 0.5, 0.5));
+  // Paper confetti in the cube colours: fewer, larger pieces that flutter down and fade.
+  const paper = new PlaneGeometry(0.13, 0.075);
+  const confetti = Array.from({ length: 24 }, (_, i) => {
+    const color = [HUES.blue.body, HUES.green.body, 0xffffff][i % 3];
+    const piece = new Mesh(paper, new MeshStandardMaterial({ color, roughness: 0.6, side: DoubleSide, transparent: true }));
     piece.userData.seed = i + 1; scene.add(piece); return piece;
   });
 
   const camera = new PerspectiveCamera(27, 1, 0.1, 60);
-  const camBase = v(0, 2.45, 7.2); const lookBase = v(0, 0.78, -0.4);
+  const camBase = CAMERA_EYE; const lookBase = v(0, 0.78, -0.4);
   let baseFov = 27;
   function resize() {
     const { clientWidth: width, clientHeight: height } = canvas;
@@ -726,18 +893,56 @@ export function mountSorter(root) {
     camera.fov = baseFov; camera.updateProjectionMatrix();
   }
 
+  // Clicking Bean makes it hop with a happy wiggle; this rides on top of the story.
+  const HOP = 0.62;
+  let hopAt = -Infinity;
+  const hopExtra = (now) => {
+    const u = (now - hopAt) / 1000 / HOP;
+    if (u < 0 || u >= 1) return NO_EXTRA;
+    return {
+      lift: 0.32 * Math.sin(Math.PI * seg(u, 0.18, 0.8)) * (u > 0.18 && u < 0.8 ? 1 : 0),
+      squash: 1 - 0.14 * bump(u, 0, 0.2) + 0.1 * bump(u, 0.18, 0.4) - 0.16 * bump(u, 0.8, 1),
+      roll: 0.12 * Math.sin(u * TAU * 2) * (1 - u),
+      happy: win(u, 0.1, 1, 0.12, 0.2),
+    };
+  };
+  const beanParts = [];
+  bean.rig.traverse((child) => { if (child.isMesh) beanParts.push(child); });
+  for (const leg of bean.legs) beanParts.push(leg.thigh, leg.shin, leg.knee, leg.hipBall);
+  const raycaster = new Raycaster(); const pointer = new Vector2();
+  const overBean = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    return raycaster.intersectObjects(beanParts, false).length > 0;
+  };
+  canvas.addEventListener('pointermove', (event) => { canvas.style.cursor = overBean(event) ? 'pointer' : ''; });
+  canvas.addEventListener('click', (event) => {
+    const now = performance.now();
+    if (overBean(event) && (now - hopAt) / 1000 > HOP * 0.8) hopAt = now;
+  });
+
   let shown = -1;
-  function render(time) {
+  function render(time, now = performance.now()) {
     const t = ((time % LOOP) + LOOP) % LOOP;
-    const { pose, c } = poseBean(bean, t);
+    const { pose, c } = poseBean(bean, t, hopExtra(now));
     for (const machine of Object.values(machines)) poseMachine(machine, t);
     poseHand(hand, t);
+    drawBoard(t);
 
-    // Camera: follows Bean a little and pushes in on the big moments.
-    const push = 0.1 * win(t, 10.5, 12.3, 0.3, 0.5) + 0.08 * win(t, JUMP.crouch - 0.2, LOOP - 0.4, 0.4, 0.4);
-    camera.position.set(camBase.x + 0.25 * pose.x, camBase.y - 0.15 * push, camBase.z);
-    camera.lookAt(lookBase.x + 0.18 * pose.x, lookBase.y - 0.1 * push, lookBase.z);
+    // Camera: follows Bean a little, and eases in on the rejection, the first accept and
+    // the final celebration, turning towards Bean as it does.
+    const push = 0.22 * win(t, 10.45, 12.45, 0.4, 0.6) + 0.1 * win(t, 15.55, 16.6, 0.35, 0.45) + 0.2 * win(t, JUMP.crouch - 0.35, LOOP - 0.3, 0.5, 0.6);
+    const aim = 0.5 * clamp01(push / 0.2);
+    camera.position.set(camBase.x + 0.25 * pose.x, camBase.y - 0.6 * push, camBase.z);
+    camera.lookAt(lerp(lookBase.x + 0.18 * pose.x, pose.x, aim), lerp(lookBase.y, 0.62, aim), lerp(lookBase.z, pose.z - 0.4, aim));
     camera.zoom = 1 + push; camera.updateProjectionMatrix();
+
+    // Contact shadow under Bean, shrinking and fading as it leaves the floor.
+    const air = clamp01(c.lift / 0.6);
+    beanBlob.position.set(pose.x, 0.004, pose.z); beanBlob.rotation.y = pose.h;
+    beanBlob.scale.set(1.25 * (1 - 0.35 * air), 1, 0.95 * (1 - 0.35 * air));
+    beanBlob.material.opacity = 0.34 * (1 - 0.6 * air);
 
 
     // Whatever rides on Bean's head sways with its gait and rings after stops and landings.
@@ -754,6 +959,14 @@ export function mountSorter(root) {
       const squash = s.squash ?? 1;
       shape.mesh.scale.set(s.s / Math.sqrt(squash), s.s * squash, s.s / Math.sqrt(squash));
     }
+    shapes.forEach((shape, i) => {
+      const height = shape.mesh.position.y - shape.plan.size;
+      const near = shape.mesh.visible ? 1 - clamp01(height / 1.4) : 0;
+      const shadow = shapeBlobs[i];
+      shadow.position.set(shape.mesh.position.x, 0.005, shape.mesh.position.z);
+      shadow.scale.setScalar(0.55 * (1 - 0.4 * (1 - near)));
+      shadow.material.opacity = 0.4 * near * near; shadow.visible = near > 0.02;
+    });
 
     // Thought marks and shock lines.
     const head = bean.root.position.clone().add(v(0, 0.75, 0));
@@ -774,17 +987,23 @@ export function mountSorter(root) {
       line.scale.setScalar(Math.max(1e-3, shock));
     });
 
-    // Confetti when both are accepted.
+    // Confetti when both are accepted: popped from both screens, slowed by air, fluttering.
     const burst = t - (JUMP.take + 0.1);
     confetti.forEach((piece) => {
-      const s = piece.userData.seed; const from = s % 2 ? machines.pyramid : machines.cube;
-      piece.visible = burst > 0 && burst < 1.9;
+      const s = piece.userData.seed; const from = s % 2 ? machines.green : machines.blue;
+      piece.visible = burst > 0 && burst < 2.0;
       if (!piece.visible) return;
-      const origin = from.group.localToWorld(v(0, 1.75, 0.45));
-      const angle = hash(s) * TAU; const speed = 0.5 + hash(s + 9) * 0.9; const vy = 1.5 + hash(s + 3) * 1.0;
-      piece.position.set(origin.x + Math.cos(angle) * speed * burst, Math.max(0.02, origin.y + vy * burst - 3.3 * burst * burst), origin.z + Math.abs(Math.sin(angle)) * speed * burst);
-      piece.rotation.set(burst * (4 + hash(s + 5) * 8), burst * 5, burst * (3 + hash(s + 7) * 6));
-      piece.scale.setScalar(1 - seg(burst, 1.5, 1.9));
+      const origin = from.group.localToWorld(v(0, 1.5, 0.5));
+      const drag = 2.4; const gravity = 4.2; const spread = (1 - Math.exp(-drag * burst)) / drag;
+      const inward = -Math.sign(origin.x) * (0.6 + hash(s) * 1.6); const forward = 0.8 + hash(s + 9) * 1.6; const up = 1.4 + hash(s + 3) * 1.4;
+      const sway = 0.07 * Math.sin(burst * (6 + hash(s + 11) * 4) + s);
+      piece.position.set(
+        origin.x + inward * spread + sway,
+        Math.max(0.02, origin.y + (up + gravity / drag) * spread - (gravity / drag) * burst),
+        origin.z + forward * spread,
+      );
+      piece.rotation.set(burst * (5 + hash(s + 5) * 7), burst * (2 + hash(s + 13) * 3), burst * (3 + hash(s + 7) * 6));
+      piece.material.opacity = 1 - smooth(seg(burst, 1.45, 2.0));
     });
 
     renderer.render(scene, camera);
@@ -804,10 +1023,18 @@ export function mountSorter(root) {
   let lastTime = 0;
   resize();
   new ResizeObserver(() => { resize(); render(lastTime); }).observe(canvas);
-  // ?still renders one fixed frame (used by the site tests), as reduced motion does.
-  const capture = new URLSearchParams(location.search).has('still');
+  // Reduced motion (and ?still, used by the site tests) starts paused on a closing frame;
+  // the pause button can still start it.
+  const still = new URLSearchParams(location.search).has('still');
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  root.dataset.ready = 'true';
+  const toggle = root.querySelector('.gym-pause');
+  let paused = false;
+  const setPaused = (value) => {
+    paused = value;
+    root.dataset.paused = String(value);
+    if (toggle) toggle.setAttribute('aria-label', value ? 'Play animation' : 'Pause animation');
+  };
+  toggle?.addEventListener('click', () => setPaused(!paused));
   // Stage labels jump to their moment in the current loop.
   chips.forEach((chip, index) => {
     chip.querySelector('button')?.addEventListener('click', () => {
@@ -815,14 +1042,25 @@ export function mountSorter(root) {
       render(lastTime);
     });
   });
-  if (capture || reduced.matches) { lastTime = 31.9; render(lastTime); return render; }
+  if (still || reduced.matches) { setPaused(true); lastTime = 31.9; } else setPaused(false);
   let visible = true; let previous = null;
   new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(root);
   const frame = (now) => {
-    if (previous !== null && visible && !document.hidden) { lastTime += Math.min(0.05, (now - previous) / 1000); render(lastTime); }
-    previous = now; requestAnimationFrame(frame);
+    const step = previous === null ? 0 : Math.min(0.05, (now - previous) / 1000);
+    previous = now;
+    // While paused, keep drawing only for a click hop (plus one frame to settle).
+    const hopping = (now - hopAt) / 1000 < HOP + 0.1;
+    if (visible && !document.hidden && (!paused || hopping)) {
+      if (!paused) lastTime += step;
+      render(lastTime, now);
+    }
+    requestAnimationFrame(frame);
   };
-  render(0); requestAnimationFrame(frame);
+  // Preview tooling (drafts/capture.cjs) opts in before load to seek exact frames.
+  if (window.__beanPreview) window.__beanPreview.seek = (seconds) => { lastTime = seconds; render(seconds); };
+  render(lastTime);
+  root.dataset.ready = 'true';
+  requestAnimationFrame(frame);
   return render;
 }
 
@@ -833,8 +1071,9 @@ function boot() {
   const host = document.createElement('div');
   host.className = 'gym-art';
   host.setAttribute('role', 'group');
-  host.setAttribute('aria-label', 'Animation: a small robot agent is handed a cube, puts it in the pyramid machine and is rejected, corrects itself and gets it accepted, then sorts a pyramid and a cube correctly first time.');
-  host.innerHTML = '<div class="loop-head"><span class="mini-label">THE RELIABILITY LOOP</span></div>'
+  host.setAttribute('aria-label', 'Animation: a small robot agent is handed a blue cube, puts it in the green machine and is rejected, corrects itself and gets it accepted by the blue machine, then sorts a green and a blue cube correctly first time.');
+  host.innerHTML = '<div class="loop-head"><span class="mini-label">THE RELIABILITY LOOP</span>'
+    + '<button type="button" class="gym-pause" aria-label="Pause animation"><span aria-hidden="true"></span></button></div>'
     + '<div class="gym-stage"><canvas class="gym-canvas" aria-hidden="true"></canvas></div>'
     + '<p class="gym-caption" aria-hidden="true"></p>'
     + `<ol class="gym-chips" aria-label="Jump to a stage of the loop">${STAGES.map((name) => `<li><button type="button">${name}</button></li>`).join('')}</ol>`;

@@ -17,6 +17,36 @@
     });
   }
 
+  // The 3D hero (assets/bean-hero.js) replaces the CSS reliability loop. It is fetched
+  // only after the page has loaded, when the hero is near the viewport, and only if the
+  // browser can run WebGL; otherwise the CSS loop simply stays.
+  const loopArt = document.querySelector('.loop-art');
+  const hasWebGL = () => {
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl');
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+      return Boolean(gl);
+    } catch {
+      return false;
+    }
+  };
+  if (loopArt && hasWebGL()) {
+    const loadHero = () => {
+      const hero = document.createElement('script');
+      hero.src = 'assets/bean-hero.js';
+      document.head.append(hero);
+    };
+    const whenNear = () => {
+      if (!('IntersectionObserver' in window)) { loadHero(); return; }
+      const watcher = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) { watcher.disconnect(); loadHero(); }
+      }, { rootMargin: '400px 0px' });
+      watcher.observe(loopArt);
+    };
+    if (document.readyState === 'complete') whenNear();
+    else window.addEventListener('load', whenNear, { once: true });
+  }
+
   // All content, navigation and case-study disclosures also work without JavaScript.
   if ('IntersectionObserver' in window) {
     const links = [...document.querySelectorAll('.desktop-nav a')];

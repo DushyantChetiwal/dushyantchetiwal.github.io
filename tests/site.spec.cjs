@@ -102,7 +102,7 @@ test('the 3D hero replaces the CSS loop, keeps playing on hover and jumps betwee
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(site);
   const hero = page.locator('.gym-art');
-  await expect(hero).toHaveAttribute('data-ready', 'true');
+  await expect(hero).toHaveAttribute('data-ready', 'true', { timeout: 30000 });
   await expect(page.locator('.loop-art')).toBeHidden();
   await expect(hero.locator('canvas')).toBeVisible();
   const stages = ['Task', 'Attempt', 'Eval', 'Correct', 'Harder task'];
@@ -116,6 +116,46 @@ test('the 3D hero replaces the CSS loop, keeps playing on hover and jumps betwee
   await hero.locator('canvas').hover();
   await expect(hero.locator('.gym-caption')).not.toHaveText('A new task drops in.', { timeout: 25000 });
   expect(errors).toEqual([]);
+});
+
+test('the 3D hero has a pause button that holds the story still and resumes it', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.goto(site);
+  const hero = page.locator('.gym-art');
+  await expect(hero).toHaveAttribute('data-ready', 'true', { timeout: 30000 });
+  const pause = hero.getByRole('button', { name: 'Pause animation' });
+  await pause.click();
+  await expect(hero).toHaveAttribute('data-paused', 'true');
+  const play = hero.getByRole('button', { name: 'Play animation' });
+  await expect(play).toBeFocused();
+  await hero.getByRole('button', { name: 'Task', exact: true }).click();
+  await page.waitForTimeout(4000);
+  await expect(hero.locator('.gym-caption')).toHaveText('A new task drops in.');
+  await play.click();
+  await expect(hero).toHaveAttribute('data-paused', 'false');
+  await expect(hero.locator('.gym-caption')).not.toHaveText('A new task drops in.', { timeout: 25000 });
+});
+
+test('with reduced motion the 3D hero starts paused on a still frame', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(site);
+  const hero = page.locator('.gym-art');
+  await expect(hero).toHaveAttribute('data-ready', 'true', { timeout: 30000 });
+  await expect(hero).toHaveAttribute('data-paused', 'true');
+  await expect(hero.getByRole('button', { name: 'Play animation' })).toBeVisible();
+  await expect(hero.locator('.gym-caption')).toHaveText('Both accepted, first try.');
+});
+
+test('without WebGL the 3D hero is never downloaded and the CSS loop stays', async ({ page }) => {
+  const requested = [];
+  page.on('request', (request) => requested.push(request.url()));
+  await page.addInitScript(() => { HTMLCanvasElement.prototype.getContext = () => null; });
+  await page.goto(site);
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(1500);
+  expect(requested.some((url) => url.endsWith('bean-hero.js'))).toBe(false);
+  await expect(page.locator('.gym-art')).toHaveCount(0);
+  await expect(page.locator('.loop-art')).toBeVisible();
 });
 
 test('without JavaScript the CSS reliability loop animates four linked steps and holds still for reduced motion', async ({ browser }) => {
