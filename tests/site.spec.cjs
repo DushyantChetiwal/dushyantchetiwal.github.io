@@ -45,23 +45,14 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['laptop', 1024, 9
   });
 }
 
-test('branding uses uppercase DC, neutral colors and a minimal footer', async ({ page }) => {
+test('branding uses uppercase DC, warm obsidian & amber palette and a minimal footer', async ({ page }) => {
   await page.goto(site);
   await expect(page.locator('.monogram')).toHaveText('DC.');
   await expect(page.locator('footer')).not.toContainText('Built with intention.');
   await expect(page.locator('footer p')).toHaveCount(0);
-  await expect(page.locator('.hero .heading-accent')).toHaveCSS('color', 'rgb(0, 0, 0)');
-  await expect(page.locator('.contact-box')).toHaveCSS('background-color', 'rgb(17, 17, 17)');
-  for (const file of ['styles.css', 'assets/favicon.svg']) {
-    const source = readFileSync(resolve(__dirname, '../site', file), 'utf8');
-    const colors = [...source.matchAll(/#([0-9a-f]{3,8})\b/gi)].map((match) => {
-      let value = match[1];
-      if (value.length <= 4) value = [...value].map((digit) => digit + digit).join('');
-      return [0, 2, 4].map((start) => parseInt(value.slice(start, start + 2), 16));
-    });
-    expect(colors.length).toBeGreaterThan(0);
-    expect(colors.every(([red, green, blue]) => red === green && green === blue)).toBe(true);
-  }
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(13, 13, 12)');
+  await expect(page.locator('.hero .heading-accent')).toHaveCSS('color', 'rgb(217, 168, 92)');
+  await expect(page.locator('.monogram span')).toHaveCSS('color', 'rgb(217, 168, 92)');
 });
 
 test('benchmark mutation is distinct from RL Gym and describes runtime evaluation coverage', async ({ page }) => {
