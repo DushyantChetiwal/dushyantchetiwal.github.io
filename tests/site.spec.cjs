@@ -75,7 +75,8 @@ test('enterprise environments describe functionality without naming services or 
   await page.goto(site);
   const card = page.locator('#enterprise-environments');
   await expect(card.getByRole('heading', { level: 3 })).toHaveText('Simulated companies.Real agent work.');
-  await expect(card).toContainText('about 10 engineers');
+  await expect(card).toContainText('platform engineering team');
+  await expect(card).not.toContainText('10 engineers');
   await card.locator('summary').click();
   await expect(card).toContainText('Separate teams create the evaluation tasks');
   await expect(card).toContainText('audit journals');
