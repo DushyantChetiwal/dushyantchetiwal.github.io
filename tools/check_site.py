@@ -17,12 +17,16 @@ import zlib
 
 SITE = Path(__file__).resolve().parents[1] / "site"
 ORIGIN = "https://dushyantchetiwal.github.io"
-CANONICAL = ORIGIN + "/"
+CANONICALS = {
+    "index.html": ORIGIN + "/",
+    "praxis/index.html": ORIGIN + "/praxis/",
+}
+ALLOWED_DIRS = {"assets", "praxis"}
 # Review each new public file explicitly; an extension alone is not permission.
 ALLOWED = {
-    "index.html", "styles.css", "script.js", ".nojekyll", "robots.txt",
+    "index.html", "praxis/index.html", "styles.css", "script.js", ".nojekyll", "robots.txt",
     "sitemap.xml", "assets/favicon.svg", "assets/social-preview.png",
-    "assets/dushyant-chetiwal-resume.pdf",
+    "assets/praxis-architect.png", "assets/dushyant-chetiwal-resume.pdf",
     # The 3D hero: src/hero/bean.js bundled with three.js by tools/build_hero.py.
     "assets/bean-hero.js",
 }
@@ -240,7 +244,8 @@ class Document(HTMLParser):
         for key in ("description", "viewport", "og:title", "og:description", "og:image"):
             if not self.meta.get(key, "").strip():
                 self.fail(f"missing or empty {key} metadata")
-        if self.canonicals != [CANONICAL] or self.meta.get("og:url") != CANONICAL:
+        expected_canonical = CANONICALS.get(self.path.as_posix())
+        if expected_canonical is None or self.canonicals != [expected_canonical] or self.meta.get("og:url") != expected_canonical:
             self.fail("canonical and og:url must match the intended personal site")
         previous = 0
         for level, text in self.headings:
@@ -294,7 +299,7 @@ def main():
             checks.fail(path, "symlinks/junctions are forbidden")
             continue
         if file.is_dir():
-            if name != "assets":
+            if name not in ALLOWED_DIRS:
                 checks.fail(path, "directory is not on the public allowlist")
             continue
         if name not in ALLOWED or (name != ".nojekyll" and file.suffix not in EXTENSIONS):
@@ -326,8 +331,9 @@ def main():
             elif name == "sitemap.xml":
                 root = ET.fromstring(text)
                 locations = [node.text for node in root.findall("{*}url/{*}loc")]
-                if root.tag != "{http://www.sitemaps.org/schemas/sitemap/0.9}urlset" or locations != [CANONICAL]:
-                    checks.fail(path, "sitemap must contain only the intended canonical URL")
+                expected_locations = list(CANONICALS.values())
+                if root.tag != "{http://www.sitemaps.org/schemas/sitemap/0.9}urlset" or locations != expected_locations:
+                    checks.fail(path, "sitemap must contain only the intended canonical URLs")
             elif name == "robots.txt":
                 if "Sitemap: " + ORIGIN + "/sitemap.xml" not in text:
                     checks.fail(path, "missing canonical sitemap declaration")

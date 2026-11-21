@@ -233,3 +233,25 @@ test('reduced motion disables smooth scrolling and resume is a local PDF', async
   expect(resume.subarray(0, 5).toString()).toBe('%PDF-');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://dushyantchetiwal.github.io/');
 });
+
+test('praxis product page shares portfolio styling, local assets and cross-links cleanly', async ({ page }) => {
+  const praxisSite = pathToFileURL(resolve(__dirname, '../site/praxis/index.html')).href;
+  const errors = [];
+  const externalRequests = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('request', (request) => { if (/^https?:/.test(request.url())) externalRequests.push(request.url()); });
+
+  await page.goto(site);
+  await expect(page.locator('#praxis a[href="praxis/"]')).toBeVisible();
+  await expect(page.locator('#praxis a[href="https://github.com/DushyantChetiwal/praxis"]')).toBeVisible();
+
+  await page.goto(praxisSite);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Praxis.Plan systems. Ship code.');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://dushyantchetiwal.github.io/praxis/');
+  await expect(page.locator('header a.identity')).toHaveAttribute('href', '../');
+  await expect(page.locator('footer p')).toHaveCount(0);
+  await expect(page.locator('.praxis-shot img')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+  expect(externalRequests).toEqual([]);
+});
