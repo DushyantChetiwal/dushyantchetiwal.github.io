@@ -25,10 +25,7 @@ OUTPUT = (
 EMAIL = "dushyantchetiwal24@gmail.com"
 GITHUB = "https://github.com/DushyantChetiwal"
 LINKEDIN = "https://www.linkedin.com/in/dushyantchetiwal/"
-PARAMETER_GOLF = (
-    "https://github.com/DushyantChetiwal/parameter-golf/tree/"
-    "submission/annealed-muon-1.58bit-8kv"
-)
+PARAMETER_GOLF = "https://github.com/DushyantChetiwal/parameter-golf"
 ACCENT = "#111111"
 INK = "#292929"
 MUTED = "#565656"
@@ -169,14 +166,15 @@ def build_resume():
     resume.section("Selected project")
     resume.paragraph(
         "<b>OpenAI Parameter Golf Challenge</b> · "
-        + link(PARAMETER_GOLF, "Public submission branch"),
+        + link(PARAMETER_GOLF, "Public submissions"),
         leading=14, after=4,
     )
-    # parameter-golf; explicitly a non-record entry, not a competition win.
+    # parameter-golf; explicitly non-record entries, single-seed paired comparison.
     resume.bullet(
-        "Achieved <b>1.22 BPB (bits per byte) on FineWeb validation</b> in a "
-        "non-record submission using 1.58-bit quantization and base-3 weight packing, "
-        "under a <b>16 MB artifact and 10-minute training limit on 8 H100 GPUs</b>."
+        "Reached <b>1.0563 BPB in 15.95 MB</b> (beating a paired 1.0568 baseline on "
+        "identical 600s 8×H100 weights) via Left-FWHT column-grouped E8-GPTQ, Shannon "
+        "water-filling and 4-bucket C-rANS, plus a <b>1.0990 BPB</b> zero-codebook "
+        "Shell-E8 looped-distillation entry (15.83 MB; non-record submissions)."
     )
 
     resume.section("Education")
